@@ -53,7 +53,7 @@ Specialists return their results to the orchestrator, which synthesizes findings
 
 ## The Wiki Layer
 
-The project wiki (`.opencode/wiki/`) serves as shared memory across sessions. Without it, every new session starts from zero understanding of the project.
+The project wiki (`.opencode/wiki/`) is shared memory across sessions. Without it, every new session starts from zero understanding of the project.
 
 ```
 Session 1: wiki-curator bootstraps from source code

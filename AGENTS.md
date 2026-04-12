@@ -20,7 +20,7 @@ Run `opencode models` and present the output. Ask the user:
 - "Which provider do you want for code generation (paid is better quality)?"
 
 Categorize into three tiers:
-- **FREE**: Subscription models -- for routing, planning, review, wiki
+- **SUB**: Subscription models -- for routing, planning, review, wiki
 - **MID**: Pay-per-token coding models -- for implementation specialists
 - **PREMIUM**: Frontier models -- never assign as default, manual override only
 

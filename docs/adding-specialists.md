@@ -50,7 +50,7 @@ permission:
 **Key decisions**:
 - Agent name comes from the filename (`my-specialist.md` = `my-specialist` agent)
 - `mode: subagent` + `hidden: true` -- keeps it out of the Tab cycle and `@` autocomplete
-- `model` -- use PAID tier for code generation, FREE for analysis-only specialists
+- `model` -- use PAID tier for code generation, SUB for analysis-only specialists
 - `steps` -- 15-20 for focused tasks, 25+ for complex multi-file work
 - `temperature` -- 0.1 for code, 0.2 for creative/architectural work
 - `permission` -- controls all tool access. `edit: deny` for read-only agents. Bash patterns use `"glob": permission` format
@@ -154,6 +154,6 @@ opencode
 ## Tips
 
 - **Don't over-specialize.** A "React specialist" is better than separate agents for "React hooks", "React testing", and "React performance". The specialist can handle all three.
-- **Match model to output type.** If the specialist only analyzes code (no writes), use a FREE model. Reserve PAID models for agents that generate code.
+- **Match model to output type.** If the specialist only analyzes code (no writes), use a subscription model. Reserve PAID models for agents that generate code.
 - **Keep bash permissions tight.** Each allowed command is an attack surface. Only allow what the specialist actually needs.
 - **Start with examples.** The `examples/specialists/` directory has working templates. Modify rather than starting from scratch.

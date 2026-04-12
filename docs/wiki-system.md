@@ -76,7 +76,7 @@ Adds knowledge from a specific source. The wiki-curator:
 2. Determines which wiki pages are relevant (or creates new ones)
 3. Updates content with new information
 4. Adds cross-references to related pages
-5. Updates `index.md` if new pages were created
+5. Updates `index.md` if it created new pages
 6. Appends to `log.md` with date and description of changes
 
 **Good ingest sources**:
@@ -148,7 +148,7 @@ Two skills provide user-friendly entry points:
 
 Trigger phrases: "Add this to the wiki", "Ingest this PR", "Update the wiki"
 
-The skill identifies the source, invokes the wiki-curator with the ingest operation, and reports what pages were created or updated.
+The skill identifies the source, invokes the wiki-curator with the ingest operation, and reports which pages it created or updated.
 
 ### wiki-lint
 

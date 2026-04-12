@@ -1,10 +1,18 @@
 # Opencode Hive
 
-A production-ready multi-agent architecture for [Opencode](https://opencode.ai) with cost-optimized model routing, parallel specialist execution, and a self-maintaining project wiki.
+A multi-agent architecture for [Opencode](https://opencode.ai) with cost-optimized model routing, parallel specialist execution, and a self-maintaining project wiki.
+
+## Why This Exists
+
+Opencode has powerful features — subagents, custom tools, per-agent permissions, skill files, model variants — that I haven't seen used much in practice. Most setups are a single agent with one model. That works, but it leaves a lot on the table.
+
+I built this because I wanted to use Opencode seriously without paying $200/month for Claude Max or ChatGPT Pro. My setup runs on subscription plans that cost a fraction of that: ChatGPT Plus ($20/month), [Minimax](https://platform.minimax.io/subscribe/token-plan?code=6u6t1KlmkF&source=link)\* ($20/month), and [Z.AI GLM Pro](https://z.ai/subscribe?ic=YBUR2UCCPY)\* ($90/quarter). Subscription models handle routing, planning, and review — the bulk of agent work. Pay-per-token models only run when a specialist writes code. The result: real multi-agent workflows at subscription prices.
+
+\*Minimax and Z.AI links are referrals — 10% off for you.
 
 ## What This Is
 
-An orchestrator delegates implementation to focused specialists based on the domain of each task. Free subscription models handle routing and analysis. Paid models handle code generation. Inspired by [Anthropic's multi-agent research](https://www.anthropic.com/engineering/multi-agent-research-system) and [Karpathy's LLM wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Includes dev tools (skeleton, impact analysis, dead code detection), a self-maintaining project wiki, and parallel review with domain-specific specialists.
+An orchestrator delegates implementation to focused specialists based on the domain of each task. Subscription models handle routing and analysis. Pay-per-token models handle code generation. Inspired by [Anthropic's multi-agent research](https://www.anthropic.com/engineering/multi-agent-research-system) and [Karpathy's LLM wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Includes dev tools (skeleton, impact analysis, dead code detection), a self-maintaining project wiki, and parallel review with domain-specific specialists.
 
 ## Architecture
 
@@ -12,19 +20,19 @@ An orchestrator delegates implementation to focused specialists based on the dom
 Tab cycle (primary agents — user switches between these):
 
   plan                          orchestrator
-  (read-only, FREE model)       (router, FREE model)
+  (read-only, SUB model)       (router, SUB model)
   |                             |
   |-- reads code                |-- delegates to subagents:
   |-- produces plans            |
   |-- traces impact             +-- python-pro     (PAID model)
-  |-- never modifies files      +-- ops-specialist  (FREE model)
-                                +-- wiki-curator    (FREE model)
+  |-- never modifies files      +-- ops-specialist  (SUB model)
+                                +-- wiki-curator    (SUB model)
                                 +-- [your specialists]
 
 Project-level subagents (installed per-project):
 
   review-lead                   your-project-dev
-  (FREE model, read-only)       (PAID model, full access)
+  (SUB model, read-only)       (PAID model, full access)
   |                             |
   +-- routes diffs to           +-- knows your project's
       domain specialists            architecture & conventions
@@ -82,7 +90,7 @@ Run `opencode models` to see every model available from your configured provider
 
 | Tier | Cost | Used By | Example Assignment |
 |------|------|---------|-------------------|
-| **FREE** | Subscription / $0 per token | orchestrator, plan, review-lead, ops-specialist, wiki-curator | Models included with a subscription plan |
+| **SUB** | Subscription, no per-token cost | orchestrator, plan, review-lead, ops-specialist, wiki-curator | Models included with your provider subscription |
 | **MID** | Pay-per-token | python-pro, project-dev, frontend-dev | Coding-focused models with good price/quality |
 | **PREMIUM** | Frontier pricing | Manual override only | Best available models, used sparingly |
 
@@ -90,9 +98,9 @@ Replace these placeholders in agent files and `opencode.json`:
 
 | Placeholder | Tier | Role |
 |---|---|---|
-| `YOUR_FREE_ROUTING_MODEL` | FREE | Orchestrator routing decisions |
-| `YOUR_FREE_STRONG_MODEL` | FREE | Planning, review, wiki curation |
-| `YOUR_FREE_FAST_MODEL` | FREE | Quick summaries, small model tasks |
+| `YOUR_FREE_ROUTING_MODEL` | SUB | Orchestrator routing decisions |
+| `YOUR_FREE_STRONG_MODEL` | SUB | Planning, review, wiki curation |
+| `YOUR_FREE_FAST_MODEL` | SUB | Quick summaries, small model tasks |
 | `YOUR_PAID_CODEX_MODEL` | MID | Code generation and variant config in opencode.json |
 
 Some agents use **reasoning variants** (e.g., `YOUR_PAID_CODEX_MODEL:high`). These configure the model to spend more compute on reasoning before responding. The `:high` variant is the default for coding tasks; `:xhigh` is available for the hardest problems. See [docs/model-selection.md](docs/model-selection.md) for a detailed guide.
@@ -105,22 +113,22 @@ The config also includes tuned **compaction settings** (`reserved: 24000`) that 
 
 | Agent | Model Tier | Role |
 |---|---|---|
-| **plan** | FREE | Read-only investigation and structured planning. Never modifies files. |
-| **orchestrator** | FREE | Routes tasks to specialists. Reads code but delegates all implementation. |
+| **plan** | SUB | Read-only investigation and structured planning. Never modifies files. |
+| **orchestrator** | SUB | Routes tasks to specialists. Reads code but delegates all implementation. |
 
 ### Global Subagents (installed in `~/.config/opencode/agents/`)
 
 | Agent | Model Tier | Role |
 |---|---|---|
 | **python-pro** | PAID | Expert Python 3.12+ developer. Types, tests, modern patterns. |
-| **ops-specialist** | FREE | Linux systems, systemd, deployment, logs, infrastructure. |
-| **wiki-curator** | FREE | Maintains the project wiki. Bootstrap, ingest, query, lint. |
+| **ops-specialist** | SUB | Linux systems, systemd, deployment, logs, infrastructure. |
+| **wiki-curator** | SUB | Maintains the project wiki. Bootstrap, ingest, query, lint. |
 
 ### Project Subagents (installed in `.opencode/agents/`)
 
 | Agent | Model Tier | Role |
 |---|---|---|
-| **review-lead** | FREE | Multi-lens code review coordinator. Routes diffs to domain specialists. |
+| **review-lead** | SUB | Multi-lens code review coordinator. Routes diffs to domain specialists. |
 | **[project]-dev** | PAID | Your project specialist. Created from `_project-dev-template.md`. |
 
 ### Example Specialists (in `examples/specialists/`)

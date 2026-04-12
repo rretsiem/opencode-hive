@@ -16,13 +16,13 @@ This lists all models grouped by provider, with their IDs and capabilities. Use 
 
 Every model falls into one of three cost tiers. The goal is to use the cheapest model that delivers acceptable quality for each role.
 
-### FREE Tier (Subscription / Zero Per-Token Cost)
+### SUB Tier (Subscription — Included with Your Plan)
 
-Models included with a provider subscription that have no per-token charges. These handle the majority of agent work.
+Models included with a provider subscription. You already pay for these — no per-token charges. These handle the majority of agent work.
 
 **Assigned to**: orchestrator, plan, review-lead, ops-specialist, wiki-curator
 
-**Why**: Routing, planning, and review tasks are high-volume but don't require frontier intelligence. A good free model handles these with minimal quality loss compared to paid alternatives. Since the orchestrator processes every request, using a free model here has the largest cost impact.
+**Why**: Routing, planning, and review are high-volume but don't need frontier intelligence. A subscription model handles these with minimal quality loss. Since the orchestrator processes every request, using a subscription model here has the largest cost impact.
 
 ### MID Tier (Pay-Per-Token Coding Models)
 
@@ -46,9 +46,9 @@ These placeholders appear in agent frontmatter and `opencode.json`. Replace them
 
 | Placeholder | Tier | Where Used | Role |
 |---|---|---|---|
-| `YOUR_FREE_ROUTING_MODEL` | FREE | orchestrator.md | Fast routing and delegation decisions |
-| `YOUR_FREE_STRONG_MODEL` | FREE | plan.md, review-lead.md, ops-specialist.md, wiki-curator.md | Analysis, investigation, review |
-| `YOUR_FREE_FAST_MODEL` | FREE | opencode.json (`small_model`) | Quick summaries, compaction |
+| `YOUR_FREE_ROUTING_MODEL` | SUB | orchestrator.md | Fast routing and delegation decisions |
+| `YOUR_FREE_STRONG_MODEL` | SUB | plan.md, review-lead.md, ops-specialist.md, wiki-curator.md | Analysis, investigation, review |
+| `YOUR_FREE_FAST_MODEL` | SUB | opencode.json (`small_model`) | Quick summaries, compaction |
 | `YOUR_PAID_CODEX_MODEL` | MID | python-pro.md, _project-dev-template.md, opencode.json | Code generation, editing, and variant config |
 
 ## Reasoning Variants
@@ -86,12 +86,12 @@ Variants are defined in `opencode.json` under `provider.<name>.models.<id>.varia
 
 | Agent | Tier | Variant | Rationale |
 |---|---|---|---|
-| orchestrator | FREE | none | Processes every request. Routing doesn't need reasoning. Cost-critical. |
-| plan | FREE | none | Investigation is IO-bound (reading files), not reasoning-bound. |
+| orchestrator | SUB | none | Processes every request. Routing doesn't need reasoning. Cost-critical. |
+| plan | SUB | none | Investigation is IO-bound (reading files), not reasoning-bound. |
 | python-pro | PAID | :high | Writes production code. Reasoning improves correctness. |
-| ops-specialist | FREE | none | Systems knowledge is pattern-matching, not deep reasoning. |
-| wiki-curator | FREE | none | Writing documentation from read context. Not computationally hard. |
-| review-lead | FREE | none | Routing + synthesis. Volume makes paid models expensive. |
+| ops-specialist | SUB | none | Systems knowledge is pattern-matching, not deep reasoning. |
+| wiki-curator | SUB | none | Writing documentation from read context. Not computationally hard. |
+| review-lead | SUB | none | Routing + synthesis. Volume makes paid models expensive. |
 | project-dev | PAID | :high | Same rationale as python-pro -- writes project-specific code. |
 | frontend-dev | PAID | :high | Same rationale -- code generation benefits from quality. |
 
@@ -150,7 +150,7 @@ Increase `timeout` if reasoning models take long on complex prompts. Increase `c
 
 ## Cost Optimization Tips
 
-1. **Start with all FREE models.** Only upgrade to PAID when you notice quality gaps in generated code.
+1. **Start with subscription models everywhere.** Only upgrade to PAID when you notice quality gaps in generated code.
 
 2. **Monitor token usage by agent.** If the orchestrator is consuming more tokens than specialists, it's doing too much work itself instead of delegating.
 
@@ -158,6 +158,6 @@ Increase `timeout` if reasoning models take long on complex prompts. Increase `c
 
 4. **Don't assign PREMIUM models as defaults.** Override manually for specific hard problems. If you find yourself overriding frequently, the MID model may not be good enough for your codebase.
 
-5. **Free models for read-only agents.** Any agent that only reads code (plan, review-lead) can use a free model without quality loss, since their output is analysis, not code.
+5. **Subscription models for read-only agents.** Any agent that only reads code (plan, review-lead) works fine on a subscription model, since its output is analysis, not code.
 
 6. **Recheck after provider updates.** Providers frequently add new models and change pricing. Run `opencode models` periodically and reassess assignments.
