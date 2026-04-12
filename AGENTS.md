@@ -1,0 +1,90 @@
+# Opencode Hive
+
+A multi-agent architecture for Opencode.
+This is a template -- not a project to develop, but a system to install into other projects.
+
+## Directory Structure
+
+- `global/` -- Files to install at `~/.config/opencode/` (agents, tools, scripts, rules, skills)
+- `project/` -- Files to install at `.opencode/` in the target project
+- `examples/` -- Optional specialist agents to pick based on project stack
+- `docs/` -- Guides for model selection, adding specialists, architecture
+
+## AI Setup Instructions
+
+When a user asks you to "set this up", "install this", or "configure my project":
+
+### Step 1: Discover Available Models
+Run `opencode models` and present the output. Ask the user:
+- "Which of these providers are subscription/free (no per-token cost)?"
+- "Which provider do you want for code generation (paid is better quality)?"
+
+Categorize into three tiers:
+- **FREE**: Subscription models -- for routing, planning, review, wiki
+- **MID**: Pay-per-token coding models -- for implementation specialists
+- **PREMIUM**: Frontier models -- never assign as default, manual override only
+
+### Step 2: Detect Target Project Stack
+Ask the user for the target project path, then scan it:
+```bash
+ls <target>/*.py <target>/*.ts <target>/*.go <target>/*.rs 2>/dev/null | head -20
+ls <target>/package.json <target>/pyproject.toml <target>/go.mod <target>/Cargo.toml 2>/dev/null
+ls <target>/Dockerfile <target>/docker-compose* 2>/dev/null
+```
+
+### Step 3: Install Global Files
+Copy each `global/` folder to `~/.config/opencode/`:
+- `agents/*.md`, `tools/*.ts`, `scripts/*`, `skills/*/`, `rules/*.md`
+- Merge `opencode.json` — don't overwrite existing MCP, LSP, or plugin config
+
+**Ask before overwriting** any existing files.
+
+### Step 4: Replace Model Placeholders
+In all copied files, replace these four placeholders with real model IDs:
+- `YOUR_FREE_ROUTING_MODEL` -> free model for routing
+- `YOUR_FREE_STRONG_MODEL` -> free model for analysis
+- `YOUR_FREE_FAST_MODEL` -> free model for summaries
+- `YOUR_PAID_CODEX_MODEL` -> paid model for code generation
+
+### Step 5: Install Project Files
+Copy `project/` contents to `<target>/.opencode/`:
+- `project/agents/*.md` -> `<target>/.opencode/agents/`
+- `project/rules/*.md` -> `<target>/.opencode/rules/`
+- `project/wiki/WIKI_SCHEMA.md` -> `<target>/.opencode/wiki/WIKI_SCHEMA.md`
+- `project/.gitignore` -> `<target>/.opencode/.gitignore`
+
+### Step 6: Select Example Specialists
+Based on detected stack, copy matching agents from `examples/specialists/`:
+- Python -> python-pro already global
+- JS/TS -> copy `frontend-dev.md`
+- Docker/K8s -> copy `devops-engineer.md`
+- SQL -> copy `database-dev.md`
+
+Add each to orchestrator.md's `permission.task` (e.g., `"frontend-dev": allow`).
+
+### Step 7: Create Project-Specific Agent
+Use `project/agents/_project-dev-template.md` as starting point:
+1. Scan target project structure
+2. Fill in project layout, conventions, dev commands, key files
+3. Save as `<target>/.opencode/agents/<project-name>-dev.md`
+4. Add to orchestrator's task permissions
+5. Add to review-lead's task permissions
+
+### Step 8: Customize Review Lead
+Edit `<target>/.opencode/agents/review-lead.md`:
+- Fill in the domain routing table with actual file patterns from the project
+
+### Step 9: Update Orchestrator Permissions
+Edit `~/.config/opencode/agents/orchestrator.md`:
+- Add every new specialist to `permission.task` (e.g., `"my-specialist": allow`)
+- Add every new project-specific agent the same way
+- Without this, the orchestrator cannot delegate to your agents
+
+### Step 10: Verify Setup
+```bash
+opencode models  # Confirm model IDs resolve
+ls ~/.config/opencode/agents/  # Global agents present
+ls <target>/.opencode/agents/  # Project agents present
+```
+
+Report the final agent inventory with models and cost tiers.

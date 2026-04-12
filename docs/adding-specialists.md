@@ -1,0 +1,159 @@
+# Adding Specialist Agents
+
+How to create new specialist agents and integrate them with the orchestrator and review system.
+
+## When to Add a Specialist
+
+Add a specialist when:
+- A domain appears repeatedly in your work (frontend, database, infrastructure)
+- The orchestrator is giving generic responses for domain-specific tasks
+- You want domain-specific review coverage (e.g., SQL review for migration files)
+
+Don't add a specialist when:
+- The work is a one-off task
+- An existing specialist can handle it (python-pro covers most backend work)
+- The domain is too narrow to justify a persistent agent
+
+## Step-by-Step
+
+### 1. Create the Agent File
+
+Start from an example in `examples/specialists/` or create a new `.md` file. The file needs YAML frontmatter and a system prompt.
+
+**Frontmatter template**:
+
+```yaml
+---
+description: "One-line description of expertise and when to invoke"
+mode: subagent
+hidden: true
+model: YOUR_PAID_CODEX_MODEL:high
+temperature: 0.1
+steps: 20
+permission:
+  bash:
+    "*": deny
+    "ls *": allow
+    "cat *": allow
+    "head *": allow
+    "grep *": allow
+    "find *": allow
+    # Add domain-specific commands:
+    # "npm *": allow
+    # "cargo *": allow
+    # "kubectl *": allow
+  task: deny
+  skill: deny
+---
+```
+
+**Key decisions**:
+- Agent name comes from the filename (`my-specialist.md` = `my-specialist` agent)
+- `mode: subagent` + `hidden: true` -- keeps it out of the Tab cycle and `@` autocomplete
+- `model` -- use PAID tier for code generation, FREE for analysis-only specialists
+- `steps` -- 15-20 for focused tasks, 25+ for complex multi-file work
+- `temperature` -- 0.1 for code, 0.2 for creative/architectural work
+- `permission` -- controls all tool access. `edit: deny` for read-only agents. Bash patterns use `"glob": permission` format
+- `task: deny` -- prevents specialists from invoking other agents (flat tree)
+
+### 2. Write the System Prompt
+
+Below the frontmatter, write the agent's system prompt. Include:
+
+```markdown
+You are a [domain] specialist. [One sentence about core expertise.]
+
+## Expertise
+- [Bullet list of specific knowledge areas]
+
+## Working Guidelines
+1. Read existing code first -- match project conventions
+2. Surgical changes -- only touch what the task requires
+3. Run checks after every edit: [relevant check command]
+4. [Domain-specific guidelines]
+
+## Output Format
+[How to structure responses -- findings, changes, verification]
+```
+
+Keep it under 100 lines. The system prompt is loaded into context on every invocation, so verbosity wastes tokens across all calls.
+
+### 3. Place the File
+
+**Global specialist** (available across all projects):
+```bash
+cp my-specialist.md ~/.config/opencode/agents/
+```
+
+**Project specialist** (only for one project):
+```bash
+cp my-specialist.md /path/to/project/.opencode/agents/
+```
+
+Global agents are better for language-level specialists (frontend-dev, database-dev). Project agents are better for project-specific knowledge (my-app-dev).
+
+### 4. Register with the Orchestrator
+
+Edit `~/.config/opencode/agents/orchestrator.md` (or the project-level copy). Add the new agent to `permission.task`:
+
+```yaml
+permission:
+  task:
+    "*": deny
+    "python-pro": allow
+    "ops-specialist": allow
+    "wiki-curator": allow
+    "my-specialist": allow    # <-- add here
+```
+
+Without this, the orchestrator cannot invoke the specialist.
+
+### 5. Register with the Review Lead
+
+If the specialist should participate in code reviews, edit `.opencode/agents/review-lead.md`:
+
+**Add to task permissions**:
+```yaml
+permission:
+  task:
+    "*": deny
+    "python-pro": allow
+    "ops-specialist": allow
+    "my-specialist": allow    # <-- add here
+```
+
+**Add to the domain routing table** in the system prompt:
+```markdown
+| `src/widgets/**`, `*.widget.ts` | Widgets | my-specialist |
+```
+
+### 6. Verify
+
+```bash
+# Check the file is in place
+ls ~/.config/opencode/agents/my-specialist.md
+
+# Start opencode and test
+opencode
+# Ask: "What agents are available?"
+# Or: "Route this task to my-specialist: [task description]"
+```
+
+## Checklist
+
+- [ ] Agent `.md` file created with frontmatter and system prompt
+- [ ] `mode: subagent` and `hidden: true` set
+- [ ] `model` assigned to appropriate cost tier
+- [ ] `permission.bash` follows deny-by-default
+- [ ] Placed in `~/.config/opencode/agents/` (global) or `.opencode/agents/` (project)
+- [ ] Added to orchestrator's `permission.task`
+- [ ] Added to review-lead's `permission.task` (if participating in reviews)
+- [ ] Added to review-lead's domain routing table (if participating in reviews)
+- [ ] Tested: orchestrator can invoke the specialist
+
+## Tips
+
+- **Don't over-specialize.** A "React specialist" is better than separate agents for "React hooks", "React testing", and "React performance". The specialist can handle all three.
+- **Match model to output type.** If the specialist only analyzes code (no writes), use a FREE model. Reserve PAID models for agents that generate code.
+- **Keep bash permissions tight.** Each allowed command is an attack surface. Only allow what the specialist actually needs.
+- **Start with examples.** The `examples/specialists/` directory has working templates. Modify rather than starting from scratch.

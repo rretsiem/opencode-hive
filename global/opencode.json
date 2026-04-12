@@ -1,0 +1,60 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "small_model": "YOUR_FREE_FAST_MODEL",
+  "default_agent": "orchestrator",
+  "snapshot": true,
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 24000
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      ".git/**",
+      "*.pyc",
+      "__pycache__/**",
+      ".venv/**",
+      "dist/**",
+      "build/**",
+      ".next/**",
+      ".nuxt/**",
+      "target/**",
+      "*.lock",
+      "*.min.js",
+      "*.min.css"
+    ]
+  },
+  "instructions": [
+    ".opencode/rules/*.md",
+    ".claude/rules/*.md"
+  ],
+  "provider": {
+    "openai": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 45000
+      },
+      "models": {
+        "YOUR_PAID_CODEX_MODEL": {
+          "variants": {
+            "high": {
+              "reasoningEffort": "high",
+              "textVerbosity": "low"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "textVerbosity": "low"
+            }
+          }
+        }
+      }
+    },
+    "anthropic": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 45000
+      }
+    }
+  }
+}
