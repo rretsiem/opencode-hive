@@ -24,13 +24,13 @@ Models included with a provider subscription. You already pay for these — no p
 
 **Why**: Routing, planning, and review are high-volume but don't need frontier intelligence. A subscription model handles these with minimal quality loss. Since the orchestrator processes every request, using a subscription model here has the largest cost impact.
 
-### MID Tier (Pay-Per-Token Coding Models)
+### MID Tier (Coding Models — Subscription or Pay-Per-Token)
 
-Models optimized for code generation, typically with per-token pricing. Used only where code quality directly impacts output.
+Your strongest coding model. This can be a subscription model (e.g., GPT-4o from ChatGPT Plus) or a pay-per-token model from OpenRouter or Opencode Zen. The point is quality, not pricing model.
 
 **Assigned to**: python-pro, project-dev, frontend-dev, other implementation specialists
 
-**Why**: Code generation benefits most from model quality. Implementation specialists write production code, so the quality investment pays off. These agents are invoked less frequently than the orchestrator (only when implementation is needed), keeping total cost manageable.
+**Why**: Code generation benefits most from model quality. Implementation specialists write production code, so the quality investment pays off. These agents run less often than the orchestrator (only when implementation is needed), keeping total cost manageable.
 
 ### PREMIUM Tier (Frontier Models)
 
@@ -161,3 +161,53 @@ Increase `timeout` if reasoning models take long on complex prompts. Increase `c
 5. **Subscription models for read-only agents.** Any agent that only reads code (plan, review-lead) works fine on a subscription model, since its output is analysis, not code.
 
 6. **Recheck after provider updates.** Providers frequently add new models and change pricing. Run `opencode models` periodically and reassess assignments.
+
+## Pay-Per-Token Alternative: OpenRouter & Opencode Zen
+
+If you want pay-per-token models instead of (or alongside) subscriptions, two options work well with Opencode:
+
+### OpenRouter
+
+[OpenRouter](https://openrouter.ai) aggregates 300+ models from all major providers. You pick the model and pay per token.
+
+Add to `opencode.json`:
+
+```json
+{
+  "provider": {
+    "openrouter": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenRouter",
+      "options": {
+        "baseURL": "https://openrouter.ai/api/v1",
+        "apiKey": "{env:OPENROUTER_API_KEY}"
+      },
+      "models": {
+        "anthropic/claude-sonnet-4": {
+          "name": "Claude Sonnet 4",
+          "limit": { "context": 200000, "output": 65536 }
+        },
+        "deepseek/deepseek-chat-v3": {
+          "name": "DeepSeek V3",
+          "limit": { "context": 128000, "output": 16384 }
+        }
+      }
+    }
+  }
+}
+```
+
+Set `export OPENROUTER_API_KEY=sk-or-v1-...` in your shell. Model IDs follow the format `openrouter/vendor/model-name`.
+
+### Opencode Zen
+
+[Opencode Zen](https://opencode.ai/docs/zen/) is Opencode's own model gateway — 40+ coding models sold at cost. Run `/connect` in Opencode, select "OpenCode Zen", and paste your API key. Models use the `opencode/model-id` format.
+
+### Mixing Subscription and Pay-Per-Token
+
+You can use subscription models for the SUB tier and pay-per-token for the MID tier in the same setup. Set each agent's `model` field to the right provider:
+
+```
+orchestrator.md   → model: chatgpt/gpt-4o          (subscription)
+python-pro.md     → model: openrouter/anthropic/claude-sonnet-4  (pay-per-token)
+```

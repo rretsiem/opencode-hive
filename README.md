@@ -6,13 +6,15 @@ A multi-agent architecture for [Opencode](https://opencode.ai) with cost-optimiz
 
 Opencode has powerful features — subagents, custom tools, per-agent permissions, skill files, model variants — that I haven't seen used much in practice. Most setups are a single agent with one model. That works, but it leaves a lot on the table.
 
-I built this because I wanted to use Opencode seriously without paying $200/month for Claude Max or ChatGPT Pro. My setup runs on subscription plans that cost a fraction of that: ChatGPT Plus ($20/month), [Minimax](https://platform.minimax.io/subscribe/token-plan?code=6u6t1KlmkF&source=link)\* ($20/month), and [Z.AI GLM Pro](https://z.ai/subscribe?ic=YBUR2UCCPY)\* ($90/quarter). Subscription models handle routing, planning, and review — the bulk of agent work. Pay-per-token models only run when a specialist writes code. The result: real multi-agent workflows at subscription prices.
+I built this because I wanted to use Opencode seriously without paying $200/month for Claude Max or ChatGPT Pro. My setup runs entirely on subscription plans: ChatGPT Plus ($20/month), [Minimax](https://platform.minimax.io/subscribe/token-plan?code=6u6t1KlmkF&source=link)\* ($20/month), and [Z.AI GLM Pro](https://z.ai/subscribe?ic=YBUR2UCCPY)\* ($90/quarter). Subscription models handle routing, planning, review, and even code generation. If you prefer pay-per-token for coding specialists, [OpenRouter](https://openrouter.ai) and [Opencode Zen](https://opencode.ai/docs/zen/) are good options — see [docs/model-selection.md](docs/model-selection.md#pay-per-token-alternative-openrouter--opencode-zen) for setup.
+
+This is my configuration as a starting point. I write Python, so the included specialist is `python-pro`. For other languages, swap it for a specialist that matches your stack — see `examples/specialists/` for frontend, backend, database, and devops templates. Fork it, adjust it, make it yours.
 
 \*Minimax and Z.AI links are referrals — 10% off for you.
 
 ## What This Is
 
-An orchestrator delegates implementation to focused specialists based on the domain of each task. Subscription models handle routing and analysis. Pay-per-token models handle code generation. Inspired by [Anthropic's multi-agent research](https://www.anthropic.com/engineering/multi-agent-research-system) and [Karpathy's LLM wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Includes dev tools (skeleton, impact analysis, dead code detection), a self-maintaining project wiki, and parallel review with domain-specific specialists.
+An orchestrator delegates implementation to focused specialists based on the domain of each task. Lightweight subscription models handle routing and analysis. Stronger models — subscription or pay-per-token, your choice — handle code generation. Inspired by [Anthropic's multi-agent research](https://www.anthropic.com/engineering/multi-agent-research-system) and [Karpathy's LLM wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Includes dev tools (skeleton, impact analysis, dead code detection), a self-maintaining project wiki, and parallel review with domain-specific specialists.
 
 ## Architecture
 
@@ -91,7 +93,7 @@ Run `opencode models` to see every model available from your configured provider
 | Tier | Cost | Used By | Example Assignment |
 |------|------|---------|-------------------|
 | **SUB** | Subscription, no per-token cost | orchestrator, plan, review-lead, ops-specialist, wiki-curator | Models included with your provider subscription |
-| **MID** | Pay-per-token | python-pro, project-dev, frontend-dev | Coding-focused models with good price/quality |
+| **MID** | Subscription or pay-per-token | python-pro, project-dev, frontend-dev | Your strongest coding model |
 | **PREMIUM** | Frontier pricing | Manual override only | Best available models, used sparingly |
 
 Replace these placeholders in agent files and `opencode.json`:
