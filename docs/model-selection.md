@@ -53,47 +53,63 @@ These placeholders appear in agent frontmatter and `opencode.json`. Replace them
 
 ## Reasoning Variants
 
-Some models support reasoning variants that control how much compute the model spends thinking before responding. Variants are specified with a colon suffix on the model ID:
+Some models support **reasoning effort** settings that control how much compute the model spends thinking before responding. Higher reasoning effort produces better results for complex tasks at the cost of more tokens.
 
-```
-YOUR_PAID_CODEX_MODEL:high     # More reasoning, better for complex code
-YOUR_PAID_CODEX_MODEL:xhigh    # Maximum reasoning, for the hardest problems
+**Agent frontmatter format** (correct):
+
+```yaml
+model: YOUR_PAID_CODEX_MODEL
+reasoningEffort: high    # Options: low, medium, high, xhigh
 ```
 
-Variants are defined in `opencode.json` under `provider.<name>.models.<id>.variants`:
+The `reasoningEffort` field is passed directly to the provider as a model option. This replaces the legacy colon-suffix format (`model:YOUR_PAID_CODEX_MODEL:high`) which is no longer supported.
+
+**Configure default variants in `opencode.json`** (optional):
 
 ```json
 {
-  "variants": {
-    "high": {
-      "reasoningEffort": "high",
-      "textVerbosity": "low"
-    },
-    "xhigh": {
-      "reasoningEffort": "xhigh",
-      "textVerbosity": "low"
+  "provider": {
+    "openai": {
+      "models": {
+        "gpt-5.3-codex": {
+          "variants": {
+            "high": {
+              "reasoningEffort": "high",
+              "textVerbosity": "low"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "textVerbosity": "low"
+            }
+          }
+        }
+      }
     }
   }
 }
 ```
 
-**When to use variants**:
-- `:high` -- Default for implementation specialists. Good balance of quality and cost.
-- `:xhigh` -- Use for debugging subtle issues, complex refactors, or architecture-level changes. Costs more tokens due to extended reasoning.
-- No variant -- Plain model ID for tasks that don't benefit from extended reasoning (routing, simple edits).
+**When to use reasoning effort**:
+- `high` -- Default for implementation specialists. Good balance of quality and cost.
+- `xhigh` -- Use for debugging subtle issues, complex refactors, or architecture-level changes. Costs more tokens due to extended reasoning.
+- `medium` or `low` -- For simpler tasks where full reasoning is overkill.
+
+**Note**: Reasoning effort options vary by model. OpenAI models support `low`, `medium`, `high`, `xhigh`. Check your model's documentation for available options.
 
 ## Assignment Matrix
 
-| Agent | Tier | Variant | Rationale |
-|---|---|---|---|
+| Agent | Tier | Reasoning | Rationale |
+|-------|------|-----------|-----------|
 | orchestrator | SUB | none | Processes every request. Routing doesn't need reasoning. Cost-critical. |
 | plan | SUB | none | Investigation is IO-bound (reading files), not reasoning-bound. |
-| python-pro | PAID | :high | Writes production code. Reasoning improves correctness. |
+| python-pro | PAID | high | Writes production code. Reasoning improves correctness. |
 | ops-specialist | SUB | none | Systems knowledge is pattern-matching, not deep reasoning. |
 | wiki-curator | SUB | none | Writing documentation from read context. Not computationally hard. |
 | review-lead | SUB | none | Routing + synthesis. Volume makes paid models expensive. |
-| project-dev | PAID | :high | Same rationale as python-pro -- writes project-specific code. |
-| frontend-dev | PAID | :high | Same rationale -- code generation benefits from quality. |
+| project-dev | PAID | high | Same rationale as python-pro -- writes project-specific code. |
+| frontend-dev | PAID | high | Same rationale -- code generation benefits from quality. |
+
+
 
 ## Compaction & Context Tuning
 
@@ -154,7 +170,7 @@ Increase `timeout` if reasoning models take long on complex prompts. Increase `c
 
 2. **Monitor token usage by agent.** If the orchestrator is consuming more tokens than specialists, it's doing too much work itself instead of delegating.
 
-3. **Use `:high` not `:xhigh` by default.** The extra reasoning in `:xhigh` is rarely needed and doubles the thinking token cost.
+3. **Use `high` reasoning effort, not `xhigh`, by default.** The extra reasoning in `xhigh` is rarely needed and doubles the thinking token cost.
 
 4. **Don't assign PREMIUM models as defaults.** Override manually for specific hard problems. If you find yourself overriding frequently, the MID model may not be good enough for your codebase.
 

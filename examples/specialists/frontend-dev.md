@@ -2,7 +2,8 @@
 description: "Frontend specialist — React, Vue, Svelte, HTMX. Component patterns, state management, accessibility, CSS, performance."
 mode: subagent
 hidden: true
-model: YOUR_PAID_CODEX_MODEL:high
+model: YOUR_PAID_CODEX_MODEL
+reasoningEffort: high
 temperature: 0.1
 steps: 20
 permission:

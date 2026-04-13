@@ -105,7 +105,7 @@ Replace these placeholders in agent files and `opencode.json`:
 | `YOUR_FREE_FAST_MODEL` | SUB | Quick summaries, small model tasks |
 | `YOUR_PAID_CODEX_MODEL` | MID | Code generation and variant config in opencode.json |
 
-Some agents use **reasoning variants** (e.g., `YOUR_PAID_CODEX_MODEL:high`). These configure the model to spend more compute on reasoning before responding. The `:high` variant is the default for coding tasks; `:xhigh` is available for the hardest problems. See [docs/model-selection.md](docs/model-selection.md) for a detailed guide.
+Some agents use **reasoning variants** (e.g., `YOUR_PAID_CODEX_MODEL with reasoningEffort: high`). These configure the model to spend more compute on reasoning before responding. The `high` reasoning effort is the default for coding tasks; `xhigh` is available for the hardest problems. See [docs/model-selection.md](docs/model-selection.md) for a detailed guide.
 
 The config also includes tuned **compaction settings** (`reserved: 24000`) that trigger context compression earlier than default — important for models like GLM/ZhipuAI that degrade before their nominal context limit. Provider **timeout settings** (`timeout: 600000`, `chunkTimeout: 45000`) handle slow providers and extended reasoning. See [docs/model-selection.md](docs/model-selection.md#compaction--context-tuning) for tuning guidance.
 
@@ -217,7 +217,7 @@ Create `.opencode/rules/my-rule.md` in your project. Rules are loaded into every
 
 ### Adjust Models
 
-Change the `model` field in any agent's frontmatter. Use the format `model-id` for default settings or `model-id:variant` for reasoning variants (e.g., `model-id:high`).
+Change the `model` field in any agent's frontmatter. Use the format `model-id` for default settings or use `reasoningEffort` field for reasoning effort (e.g., `model: model-id` with `reasoningEffort: high`).
 
 ## Example Workflows
 

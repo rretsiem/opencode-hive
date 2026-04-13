@@ -4,7 +4,8 @@
 description: "Django project specialist — knows models, views, serializers, migrations, and project conventions."
 mode: subagent
 hidden: true
-model: YOUR_PAID_CODEX_MODEL:high
+model: YOUR_PAID_CODEX_MODEL
+reasoningEffort: high
 temperature: 0.1
 steps: 20
 permission:

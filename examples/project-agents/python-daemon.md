@@ -4,7 +4,8 @@
 description: "Python daemon specialist — asyncio service with systemd, scheduling, socket/API surface, and structured logging."
 mode: subagent
 hidden: true
-model: YOUR_PAID_CODEX_MODEL:high
+model: YOUR_PAID_CODEX_MODEL
+reasoningEffort: high
 temperature: 0.1
 steps: 20
 permission:

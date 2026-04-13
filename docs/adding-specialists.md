@@ -27,7 +27,8 @@ Start from an example in `examples/specialists/` or create a new `.md` file. The
 description: "One-line description of expertise and when to invoke"
 mode: subagent
 hidden: true
-model: YOUR_PAID_CODEX_MODEL:high
+model: YOUR_PAID_CODEX_MODEL
+reasoningEffort: high
 temperature: 0.1
 steps: 20
 permission:

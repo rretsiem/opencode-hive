@@ -7,7 +7,8 @@
 description: "TODO: Your project domain expert — knows architecture, conventions, and key files"
 mode: subagent
 hidden: true
-model: YOUR_PAID_CODEX_MODEL:high
+model: YOUR_PAID_CODEX_MODEL
+reasoningEffort: high
 temperature: 0.1
 steps: 20
 permission:
