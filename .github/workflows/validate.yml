@@ -16,6 +16,8 @@ jobs:
         with:
           node-version: 22
       - name: Install OpenCode
-        run: npm install --global opencode-ai
+        run: npm install --global opencode-ai@1.17.20
+      - name: Report OpenCode version
+        run: opencode --version
       - name: Validate template
         run: python3 scripts/validate-template.py

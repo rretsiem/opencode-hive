@@ -75,6 +75,13 @@ def validate_examples(home: Path, project: Path) -> None:
 def resolved_config(home: Path, project: Path) -> dict[str, object]:
     environment = os.environ.copy()
     environment["HOME"] = str(home)
+    # OpenCode follows the XDG base-directory variables when they are set.
+    # Override them together with HOME so validation cannot accidentally read
+    # the runner's real configuration instead of the temporary Hive install.
+    environment["XDG_CONFIG_HOME"] = str(home / ".config")
+    environment["XDG_DATA_HOME"] = str(home / ".local" / "share")
+    environment["XDG_CACHE_HOME"] = str(home / ".cache")
+    environment["XDG_STATE_HOME"] = str(home / ".local" / "state")
     result = subprocess.run(
         ["opencode", "debug", "config"],
         cwd=project,
@@ -111,8 +118,14 @@ def validate_agents(config: dict[str, object], *, installed: bool = False) -> No
     if not isinstance(agents, dict):
         fail("resolved config contains no agents")
     default = config.get("default_agent")
-    if default not in agents or agents[default].get("mode") != "primary":
-        fail("default_agent does not resolve to a primary agent")
+    resolved_default = agents.get(default) if isinstance(default, str) else None
+    default_mode = resolved_default.get("mode") if isinstance(resolved_default, dict) else None
+    if default_mode != "primary":
+        fail(
+            "default_agent does not resolve to a primary agent "
+            f"(default={default!r}, mode={default_mode!r}, "
+            f"available={sorted(agents)})"
+        )
 
     available = set(agents) | BUILTIN_SUBAGENTS
     if installed:
