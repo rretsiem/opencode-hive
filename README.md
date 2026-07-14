@@ -197,7 +197,7 @@ See [docs/wiki-system.md](docs/wiki-system.md) for the full guide.
 ### Add a Specialist
 
 1. Copy a template from `examples/specialists/` or create a new `.md` file
-2. Set the frontmatter: name, description, mode (`subagent`), model, tools, permissions
+2. Set the frontmatter: description, mode (`subagent`), model, and permissions. The filename is the agent name; use `permission` rather than the deprecated boolean `tools` config.
 3. Place in `~/.config/opencode/agents/` (global) or `.opencode/agents/` (project-specific)
 4. Add the agent name to orchestrator.md's `permission.task` section
 5. Optionally add to review-lead.md's task permissions and domain routing table
@@ -217,7 +217,7 @@ Create `.opencode/rules/my-rule.md` in your project. Rules are loaded into every
 
 ### Adjust Models
 
-Change the `model` field in any agent's frontmatter. Use the format `model-id` for default settings or use `reasoningEffort` field for reasoning effort (e.g., `model: model-id` with `reasoningEffort: high`).
+Change the `model` field in any agent's frontmatter using the format `provider/model-id`. For supported reasoning models, set the provider option separately (for example, `reasoningEffort: high`).
 
 ## Example Workflows
 

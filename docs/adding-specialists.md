@@ -32,6 +32,7 @@ reasoningEffort: high
 temperature: 0.1
 steps: 20
 permission:
+  edit: allow
   bash:
     "*": deny
     "ls *": allow
@@ -54,8 +55,12 @@ permission:
 - `model` -- use PAID tier for code generation, SUB for analysis-only specialists
 - `steps` -- 15-20 for focused tasks, 25+ for complex multi-file work
 - `temperature` -- 0.1 for code, 0.2 for creative/architectural work
-- `permission` -- controls all tool access. `edit: deny` for read-only agents. Bash patterns use `"glob": permission` format
+- `permission` -- controls tool access. OpenCode allows most unspecified permissions, so set `edit` explicitly: `allow` for implementers and `deny` for read-only agents. Bash patterns use `"glob": permission` format.
 - `task: deny` -- prevents specialists from invoking other agents (flat tree)
+- `skill: deny` -- hides the Skill tool when the specialist has no skill-driven workflow
+
+OpenCode evaluates granular rules in order and the **last matching rule wins**.
+Put `"*": deny` first, followed by the narrower allow rules.
 
 ### 2. Write the System Prompt
 
@@ -145,6 +150,7 @@ opencode
 - [ ] Agent `.md` file created with frontmatter and system prompt
 - [ ] `mode: subagent` and `hidden: true` set
 - [ ] `model` assigned to appropriate cost tier
+- [ ] `permission.edit` explicitly matches the agent's role
 - [ ] `permission.bash` follows deny-by-default
 - [ ] Placed in `~/.config/opencode/agents/` (global) or `.opencode/agents/` (project)
 - [ ] Added to orchestrator's `permission.task`

@@ -6,6 +6,9 @@ model: YOUR_FREE_STRONG_MODEL
 temperature: 0.1
 steps: 25
 permission:
+  edit:
+    "*": deny
+    ".opencode/wiki/**": allow
   bash:
     "*": deny
     "git log *": allow

@@ -1,6 +1,11 @@
 ---
 name: wiki-lint
 description: Health-check the project wiki for stale pages, broken cross-references, contradictions, and orphan pages.
+license: MIT
+compatibility: opencode
+metadata:
+  audience: maintainers
+  workflow: project-wiki
 ---
 
 # Wiki Lint

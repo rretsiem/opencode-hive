@@ -12,6 +12,7 @@ reasoningEffort: high
 temperature: 0.1
 steps: 20
 permission:
+  edit: allow
   bash:
     "*": deny
     # TODO: Add your project's dev commands here

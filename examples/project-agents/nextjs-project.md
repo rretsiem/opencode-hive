@@ -9,6 +9,7 @@ reasoningEffort: high
 temperature: 0.1
 steps: 20
 permission:
+  edit: allow
   bash:
     "*": deny
     "npm *": allow

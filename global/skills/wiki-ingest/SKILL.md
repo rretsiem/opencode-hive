@@ -1,6 +1,11 @@
 ---
 name: wiki-ingest
 description: Ingest a source into the project wiki. Point at a file, PR, or doc and the wiki-curator extracts knowledge and updates relevant pages.
+license: MIT
+compatibility: opencode
+metadata:
+  audience: maintainers
+  workflow: project-wiki
 ---
 
 # Wiki Ingest

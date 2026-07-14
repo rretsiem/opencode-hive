@@ -8,7 +8,7 @@ The design decisions behind this multi-agent system and why they exist.
 
 2. **Flat agent tree.** One orchestrator, multiple specialists. No chains of delegation (orchestrator -> sub-orchestrator -> specialist). Deep trees lose context and multiply latency. If a task needs two domains, fan out to both specialists in parallel.
 
-3. **Deny by default.** Every agent starts with no permissions and explicitly allows what it needs. The plan agent cannot write files. The orchestrator cannot run arbitrary bash. Specialists get only their domain-specific commands. This prevents accidental damage from model hallucinations.
+3. **Explicit least privilege.** OpenCode allows most unspecified permissions by default, so every Hive agent explicitly sets its write, shell, delegation, and skill boundaries. The plan agent cannot write files. The orchestrator cannot run arbitrary bash. Specialists get only their domain-specific commands. This prevents accidental damage from model hallucinations.
 
 4. **Orchestrator is read-only.** The orchestrator reads code to understand routing decisions but never writes files. This separation prevents the common failure mode where a "smart" orchestrator tries to implement something itself instead of delegating to a specialist with better context and tools.
 
@@ -66,10 +66,13 @@ Over time, the wiki reduces the token cost of understanding the project. Instead
 
 ## Permission Model
 
-Permissions follow a deny-by-default pattern with explicit allow lists:
+OpenCode defaults most unspecified permissions to `allow` (`doom_loop` and
+`external_directory` default to `ask`). Hive therefore makes consequential
+permissions explicit and uses deny-first allow lists for granular actions:
 
 ```yaml
 permission:
+  edit: allow            # Explicit for implementation agents
   bash:
     "*": deny           # Nothing allowed by default
     "git *": allow      # Explicit allow for specific commands
@@ -85,7 +88,14 @@ permission:
 Three permission levels:
 - **allow** -- Execute without confirmation
 - **ask** -- Execute only after user confirms
-- **deny** -- Block entirely (default for everything)
+- **deny** -- Block entirely
+
+Granular rules are evaluated in order and the last matching rule wins. The
+catch-all must therefore come first. Read-only agents use `edit: deny`;
+`wiki-curator` uses a path-scoped edit rule that only allows
+`.opencode/wiki/**`. Agents that cannot delegate or load skills explicitly set
+`task: deny` and `skill: deny`, which also keeps unavailable choices out of the
+model's tool descriptions.
 
 This prevents:
 - Specialists invoking other specialists (no cascading delegation)

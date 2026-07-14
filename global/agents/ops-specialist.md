@@ -6,6 +6,7 @@ model: YOUR_FREE_STRONG_MODEL
 temperature: 0.1
 steps: 15
 permission:
+  edit: allow
   bash:
     "*": deny
     "journalctl *": allow
