@@ -97,9 +97,12 @@ cp my-specialist.md /path/to/project/.opencode/agents/
 
 Global agents are better for language-level specialists (frontend-dev, database-dev). Project agents are better for project-specific knowledge (my-app-dev).
 
-### 4. Register with the Project Orchestrator
+### 4. Register with the Matching Orchestrator
 
-Edit `<target>/.opencode/agents/orchestrator.md`. Add the new agent to `permission.task`. Keep project-only names out of the global orchestrator:
+For a global specialist, edit `~/.config/opencode/agents/orchestrator.md`. For a
+project specialist, edit `<target>/.opencode/agents/orchestrator.md`. Keep
+project-only names out of the global orchestrator. Add the agent to the matching
+`permission.task` map:
 
 ```yaml
 permission:
@@ -119,7 +122,8 @@ Never give `review-lead` access to an edit-capable implementation agent. Copy a
 matching `*-reviewer.md` example or create a reviewer with `edit: deny`, a
 deny-first Bash allow list, `task: deny`, and `skill: deny`.
 
-Then edit `.opencode/agents/review-lead.md`:
+Install the reviewer at the same scope as its implementation specialist, then
+edit the target project's `.opencode/agents/review-lead.md`:
 
 **Add to task permissions**:
 ```yaml
@@ -139,8 +143,9 @@ permission:
 ### 6. Verify
 
 ```bash
-# Check the file is in place
+# Check the global or project file is in place
 ls ~/.config/opencode/agents/my-specialist.md
+# or: ls /path/to/project/.opencode/agents/my-specialist.md
 
 # Start opencode and test
 opencode
@@ -156,7 +161,7 @@ opencode
 - [ ] `permission.edit` explicitly matches the agent's role
 - [ ] `permission.bash` follows deny-by-default
 - [ ] Placed in `~/.config/opencode/agents/` (global) or `.opencode/agents/` (project)
-- [ ] Added to the project-local orchestrator's `permission.task`
+- [ ] Added to the global or project-local orchestrator matching its installation scope
 - [ ] Separate reviewer created with `edit: deny` (if participating in reviews)
 - [ ] Reviewer added to review-lead's task permissions and routing table
 - [ ] Tested: orchestrator can invoke the specialist

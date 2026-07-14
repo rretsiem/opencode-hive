@@ -12,21 +12,28 @@ opencode models
 
 This lists all models grouped by provider, with their IDs and capabilities. Use the exact model ID from this output when configuring agents.
 
-## The Three-Tier System
+## Optional Cost Tiers
 
-Every model falls into one of three cost tiers. The goal is to use the cheapest model that delivers acceptable quality for each role.
+These tiers are budgeting labels, not model roles or provider requirements. A
+routing model can be subscription, usage-based, or local; the same is true for
+a coding model. Use the labels when they help describe marginal cost, and choose
+the least expensive model that still performs its assigned role reliably.
 
 ### SUB Tier (Subscription — Included with Your Plan)
 
-Models included with a provider subscription. You already pay for these — no per-token charges. These handle the majority of agent work.
+Models included with a provider subscription, or local models with no marginal
+per-token bill. These are often useful for high-volume agent work.
 
 **Assigned to**: orchestrator, plan, review-lead, read-only reviewers, ops-specialist, wiki-curator
 
-**Why**: Routing, planning, and review are high-volume but don't need frontier intelligence. A subscription model handles these with minimal quality loss. Since the orchestrator processes every request, using a subscription model here has the largest cost impact.
+**Why**: Routing, planning, and review are high-volume. If an economical model
+is reliable enough for those roles, using it for the orchestrator has the
+largest cost impact because the orchestrator processes every request.
 
 ### MID Tier (Coding Models — Subscription or Pay-Per-Token)
 
-Your strongest coding model. This can be a subscription model or a pay-per-token model from providers such as OpenRouter or OpenCode Zen. The point is quality, not pricing model.
+The label commonly used for your strongest coding model. It can be
+subscription, usage-based, or local. The point is capability, not billing.
 
 **Assigned to**: python-pro, project-dev, frontend-dev, other implementation specialists
 
@@ -44,7 +51,7 @@ The most capable (and expensive) models available. Never assigned as defaults.
 
 These placeholders appear in agent frontmatter and `opencode.json`. Replace them with actual model IDs from `opencode models`:
 
-| Placeholder | Tier | Where Used | Role |
+| Placeholder | Suggested tier | Where Used | Role |
 |---|---|---|---|
 | `YOUR_ROUTING_MODEL` | SUB | orchestrator.md | Fast routing and delegation decisions |
 | `YOUR_ANALYSIS_MODEL` | SUB | plan.md, review-lead.md, `*-reviewer.md`, ops-specialist.md, wiki-curator.md | Analysis, investigation, review |

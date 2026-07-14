@@ -2,7 +2,7 @@ import { tool } from "@opencode-ai/plugin"
 import path from "path"
 
 export default tool({
-  description: "Find every file that uses a symbol, distinguishing definitions from usages. Run before any refactor to understand blast radius.",
+  description: "Find likely Python definitions and usages of a symbol to estimate refactor blast radius.",
   args: {
     symbol: tool.schema.string().describe("Name of the symbol to find usages of"),
   },

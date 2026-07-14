@@ -18,12 +18,12 @@ metadata:
 
 ## Workflow
 1. Identify the source to ingest (user provides file path, PR number, or topic)
-2. If `.opencode/wiki/` doesn't exist, ask: "No wiki found. Bootstrap one by scanning the project?"
+2. If `.opencode/wiki/index.md` doesn't exist, ask: "No initialized wiki found. Bootstrap one by scanning the project?"
 3. Invoke the wiki-curator agent with the ingest operation
 4. Report what pages were created or updated
 
 ## Bootstrap (First Run)
-If no wiki exists, the wiki-curator will:
+If no initialized wiki exists (there is no `.opencode/wiki/index.md`), the wiki-curator will:
 1. Scan the project structure
 2. Read key files (README, AGENTS.md, main entrypoints)
 3. Create architecture/overview.md

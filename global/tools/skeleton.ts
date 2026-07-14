@@ -2,7 +2,7 @@ import { tool } from "@opencode-ai/plugin"
 import path from "path"
 
 export default tool({
-  description: "Strip method bodies from a Python file, keeping signatures, docstrings, and type hints. Reduces token usage by ~90% for understanding large files.",
+  description: "Strip method bodies from a Python file, keeping signatures, docstrings, and type hints to produce a smaller structural view.",
   args: {
     file_path: tool.schema.string().describe("Path to the Python file to skeletonize"),
   },

@@ -20,6 +20,19 @@ It checks that:
 - `wiki-curator` can edit only `.opencode/wiki/**`;
 - only the four documented model placeholders appear.
 
+## Validate an Installed Project
+
+After copying the template, merging `opencode.json`, and replacing model
+placeholders, validate the configuration OpenCode actually resolves:
+
+```bash
+python3 scripts/validate-template.py --target /path/to/project
+```
+
+Installed-target mode reads the normal OpenCode configuration for your user and
+project. It does not modify either one. In addition to the structural checks, it
+fails when Hive agents are missing or model placeholders remain unresolved.
+
 ## Continuous Integration
 
 `.github/workflows/validate.yml` installs the latest published `opencode-ai`

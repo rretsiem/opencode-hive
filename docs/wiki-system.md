@@ -1,6 +1,6 @@
 # Project Wiki System
 
-A self-maintaining knowledge base for your project, inspired by [Karpathy's LLM wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f).
+An agent-maintained knowledge base for your project, inspired by [Karpathy's LLM wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). It changes only when a user or agent explicitly invokes a wiki workflow.
 
 ## The Problem
 
@@ -56,7 +56,8 @@ The wiki-curator agent performs four operations on the wiki content:
 
 ### Bootstrap
 
-Triggered when `.opencode/wiki/` doesn't exist or is empty. The wiki-curator:
+Triggered when `.opencode/wiki/index.md` doesn't exist. This works for a fresh
+installation where `WIKI_SCHEMA.md` is already present. The wiki-curator:
 
 1. Scans project structure: README, config files, directory layout
 2. Reads key entrypoints and module headers

@@ -2,9 +2,9 @@ import { tool } from "@opencode-ai/plugin"
 import path from "path"
 
 export default tool({
-  description: "Scan a file for functions or classes that are never used anywhere else in the project.",
+  description: "Scan a Python file for possible dead-code candidates that should be confirmed manually.",
   args: {
-    file_path: tool.schema.string().describe("Path to the Python file to check for dead code"),
+    file_path: tool.schema.string().describe("Path to the Python file to check for dead-code candidates"),
   },
   async execute(args, context) {
     const globalScript = path.join(process.env.HOME || "", ".config/opencode/scripts/ghost.py")

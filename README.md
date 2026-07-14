@@ -1,6 +1,6 @@
 # OpenCode Hive
 
-A multi-agent architecture for [OpenCode](https://opencode.ai) with cost-optimized model routing, parallel specialist execution, and a self-maintaining project wiki.
+A multi-agent architecture for [OpenCode](https://opencode.ai) with cost-aware model routing, parallel specialist execution, and an agent-maintained project wiki.
 
 ## Why This Exists
 
@@ -12,7 +12,7 @@ This is my configuration as a starting point. I write Python, so the included sp
 
 ## What This Is
 
-An orchestrator delegates implementation to focused specialists based on the domain of each task. Lightweight subscription models handle routing and analysis. Stronger models — subscription or pay-per-token, your choice — handle code generation. Inspired by [Anthropic's multi-agent research](https://www.anthropic.com/engineering/multi-agent-research-system) and [Karpathy's LLM wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Includes dev tools (skeleton, impact analysis, dead code detection), a self-maintaining project wiki, and parallel review with domain-specific specialists.
+An orchestrator delegates implementation to focused specialists based on the domain of each task. Fast, economical models can handle routing and analysis while stronger models handle code generation, regardless of whether they are subscription, usage-based, or local. Inspired by [Anthropic's multi-agent research](https://www.anthropic.com/engineering/multi-agent-research-system) and [Karpathy's LLM wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Includes code-navigation tools, an agent-maintained project wiki, and parallel review with read-only domain reviewers.
 
 ## Architecture
 
@@ -27,15 +27,16 @@ Tab cycle (primary agents — user switches between these):
   |-- traces impact             +-- python-pro     (CODE model)
   |-- never modifies files      +-- ops-specialist  (SUB model)
                                 +-- wiki-curator    (SUB model)
+                                +-- explore/scout   (built-in, read-only)
                                 +-- [your specialists]
 
-Project-level subagents (installed per-project):
+Project-level agents:
 
-  review-lead                   your-project-dev
-  (SUB model, read-only)       (CODE model, full access)
-  |                             |
-  +-- routes diffs to           +-- knows your project's
-      domain specialists            architecture & conventions
+  orchestrator override         review-lead                   your-project-dev
+  (primary, project routes)     (SUB model, read-only)       (CODE, edit-capable)
+  |                              |                             |
+  +-- project task allow list    +-- routes diffs only to      +-- knows your project's
+                                     read-only reviewers           architecture & conventions
 ```
 
 **Primary agents** appear in the Tab cycle -- the user switches between them directly. The `plan` agent investigates and plans; the `orchestrator` executes by delegating to specialists.
@@ -67,34 +68,55 @@ OpenCode reads the `AGENTS.md` file, discovers your available models, detects yo
 
 ```bash
 # 1. Copy global files
-cp -r global/agents/ ~/.config/opencode/agents/
-cp -r global/tools/ ~/.config/opencode/tools/
-cp -r global/scripts/ ~/.config/opencode/scripts/
-cp -r global/rules/ ~/.config/opencode/rules/
-cp -r global/skills/ ~/.config/opencode/skills/
-cp global/opencode.json ~/.config/opencode/opencode.json
+mkdir -p ~/.config/opencode/{agents,tools,scripts,rules,skills}
+cp -R global/agents/. ~/.config/opencode/agents/
+cp -R global/tools/. ~/.config/opencode/tools/
+cp -R global/scripts/. ~/.config/opencode/scripts/
+cp -R global/rules/. ~/.config/opencode/rules/
+cp -R global/skills/. ~/.config/opencode/skills/
 
 # 2. Copy project files into your target project
-cp -r project/agents/ /path/to/my-project/.opencode/agents/
-cp -r project/rules/ /path/to/my-project/.opencode/rules/
-cp -r project/wiki/ /path/to/my-project/.opencode/wiki/
-cp project/.gitignore /path/to/my-project/.opencode/.gitignore
+TARGET=/path/to/my-project
+mkdir -p "$TARGET/.opencode"/{agents,rules,wiki}
+cp project/agents/orchestrator.md "$TARGET/.opencode/agents/"
+cp project/agents/review-lead.md "$TARGET/.opencode/agents/"
+cp project/agents/_project-dev-template.md \
+  "$TARGET/.opencode/agents/your-project-dev.md"
+cp -R project/rules/. "$TARGET/.opencode/rules/"
+cp -R project/wiki/. "$TARGET/.opencode/wiki/"
 
-# 3. Replace model placeholders in all .md and .json files
-# See "Model Selection" below for choosing models
+# 3. Merge global/opencode.json into ~/.config/opencode/opencode.json
+# Do not overwrite an existing file: preserve its providers, MCP servers,
+# plugins, LSP configuration, and other user settings.
+if [ ! -e ~/.config/opencode/opencode.json ]; then
+  cp global/opencode.json ~/.config/opencode/opencode.json
+else
+  echo "Existing opencode.json found; merge the template keys manually."
+fi
 
-# 4. Add stack-specific implementation/reviewer pairs, then edit the
-# project-local orchestrator.md and review-lead.md allow lists
+# 4. Replace all four model placeholders in the copied agent files and
+# ~/.config/opencode/opencode.json. See "Model Selection" below.
 
-# 5. Verify the installed template
+# 5. Add stack-specific implementation/reviewer pairs, then edit the
+# project-local orchestrator.md and review-lead.md allow lists. Replace every
+# TODO in your-project-dev.md and review-lead.md before using them.
+
+# 6. From this repository, verify the source template and real installation
 python3 scripts/validate-template.py
+python3 scripts/validate-template.py --target "$TARGET"
 ```
+
+If `~/.config/opencode/opencode.json` does not exist, copying
+`global/opencode.json` is safe. Otherwise merge its `small_model`,
+`default_agent`, `snapshot`, `compaction`, `watcher`, and `instructions` keys
+into your existing file. OpenCode merges separate configuration sources, but a
+shell copy would still destroy the existing file.
 
 ## Model Selection
 
-Run `opencode models` to see every model available from your configured providers. Assign each to a cost tier:
+Run `opencode models` to see every model available from your configured providers. The placeholders describe roles; the tier is only a suggested cost strategy:
 
-| Tier | Cost | Used By | Example Assignment |
+| Suggested tier | Cost | Used By | Example Assignment |
 |------|------|---------|-------------------|
 | **SUB** | Subscription, no per-token cost | orchestrator, plan, review-lead, reviewers, ops-specialist, wiki-curator | Models included with your provider subscription |
 | **MID** | Subscription or pay-per-token | python-pro, project-dev, frontend-dev | Your strongest coding model |
@@ -102,7 +124,7 @@ Run `opencode models` to see every model available from your configured provider
 
 Replace these placeholders in agent files and `opencode.json`:
 
-| Placeholder | Tier | Role |
+| Placeholder | Suggested tier | Role |
 |---|---|---|
 | `YOUR_ROUTING_MODEL` | SUB | Orchestrator routing decisions |
 | `YOUR_ANALYSIS_MODEL` | SUB | Planning, review, wiki curation |
@@ -132,7 +154,7 @@ The config includes conservative **compaction settings** (`reserved: 24000`). Tr
 | **ops-reviewer** | SUB | Read-only operational and deployment review. |
 | **wiki-curator** | SUB | Maintains the project wiki. Bootstrap, ingest, query, lint. |
 
-### Project Subagents (installed in `.opencode/agents/`)
+### Project Agents (installed in `.opencode/agents/`)
 
 | Agent | Model Tier | Role |
 |---|---|---|
@@ -160,23 +182,25 @@ source research.
 
 ## Custom Tools and Scripts
 
-Tools appear as native LLM tools in OpenCode -- typed parameters, descriptions, auto-discovered from `~/.config/opencode/tools/`. Each tool wraps a Python script from `scripts/`.
+Tools appear as native LLM tools in OpenCode—typed parameters, descriptions, and auto-discovery from `~/.config/opencode/tools/`. Most wrap a trusted script installed in `~/.config/opencode/scripts/`; `check` wraps a shell script and `wiki_search` is implemented directly in TypeScript.
 
 | Tool | Script | Purpose |
 |------|--------|---------|
-| `skeleton` | `skeleton.py` | Strip method bodies from Python files. ~90% token reduction for understanding large files. |
-| `impact` | `impact.py` | Find every usage of a symbol across the project. Run before renaming or refactoring. |
+| `skeleton` | `skeleton.py` | Strip method bodies from Python files to produce a smaller structural view. |
+| `impact` | `impact.py` | Find likely definitions and usages of a Python symbol. Run before renaming or refactoring. |
 | `seek` | `seek.py` | Jump to the exact definition of a class or function project-wide. |
-| `which_test` | `which_test.py` | Find tests that reference a given module. |
-| `ghost` | `ghost.py` | Detect dead code -- functions and classes never used elsewhere. |
-| `check` | `check.sh` | Run lint + format check + test suite in one command. |
+| `which_test` | `which_test.py` | Find tests that textually reference a given module. |
+| `ghost` | `ghost.py` | Identify dead-code candidates for manual confirmation. |
+| `check` | `check.sh` | Run Ruff lint, Ruff format checking, and—when unscoped—pytest; returns failure if any check fails. |
 | `wiki_search` | -- | Search wiki pages by content (no backing script, implemented in TypeScript). |
 
-All Python scripts use only the standard library -- no external dependencies required. They work with any Python 3.10+ installation.
+The Python code has standard-library fallbacks and works with Python 3.10+.
+`seek` and `impact` use Jedi when available for better resolution; scanning
+tools may call `git` or `grep`; `check` requires Ruff and pytest.
 
 ## Project Wiki (Karpathy LLM Wiki)
 
-The project wiki is an LLM-maintained knowledge base that lives at `.opencode/wiki/` inside your project. Inspired by [Karpathy's proposal](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) for LLMs to maintain their own documentation, it accumulates understanding of your project over time.
+The project wiki is an agent-maintained knowledge base that lives at `.opencode/wiki/` inside your project. Inspired by [Karpathy's proposal](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), it accumulates understanding when you explicitly ask the wiki curator or a wiki skill to bootstrap, ingest, or lint project knowledge.
 
 ### How It Works
 
@@ -212,8 +236,8 @@ See [docs/wiki-system.md](docs/wiki-system.md) for the full guide.
 
 1. Copy a template from `examples/specialists/` or create a new `.md` file
 2. Set the frontmatter: description, mode (`subagent`), model, and permissions. The filename is the agent name; use `permission` rather than the deprecated boolean `tools` config.
-3. Place in `~/.config/opencode/agents/` (global) or `.opencode/agents/` (project-specific)
-4. Add the implementation agent to `.opencode/agents/orchestrator.md`
+3. Place it in `~/.config/opencode/agents/` when it should exist in every project, or `.opencode/agents/` when it is project-specific
+4. Add a global specialist to the global orchestrator; add a project specialist to `.opencode/agents/orchestrator.md`
 5. Create or copy a separate read-only reviewer and add only that reviewer to `review-lead.md`
 
 See [docs/adding-specialists.md](docs/adding-specialists.md) for a detailed walkthrough.
@@ -261,13 +285,13 @@ On first use: "Bootstrap the wiki for this project." The wiki-curator scans the 
 
 **Model not found** -- Run `opencode models` to verify the model ID exists and is available from your configured providers. Check for typos in the `model` field.
 
-**Wiki not bootstrapping** -- Ensure `.opencode/wiki/` directory exists (even if empty). The wiki-curator checks for this directory to determine if it should bootstrap.
+**Wiki not bootstrapping** -- Check whether `.opencode/wiki/index.md` exists. Its absence is the bootstrap signal; a fresh installation may already contain `WIKI_SCHEMA.md`.
 
 **Tools not appearing** -- Tool `.ts` files must be in `~/.config/opencode/tools/`. Verify with `ls ~/.config/opencode/tools/`. OpenCode auto-discovers tools on startup.
 
 **Scripts not found by tools** -- Global tools execute their trusted implementations from `~/.config/opencode/scripts/`. Ensure that directory was copied during installation and its scripts are readable.
 
-**Template validation fails** -- Run `python3 scripts/validate-template.py` from this repository with the current `opencode` executable on `PATH`. The validator reports unresolved agents, unsafe review permissions, invalid task targets, and model-placeholder drift.
+**Template validation fails** -- Run `python3 scripts/validate-template.py` to validate the source template, or add `--target /path/to/project` to inspect the real installed configuration. Installed-target validation also rejects unresolved model placeholders.
 
 ## References
 

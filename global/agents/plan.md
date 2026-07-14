@@ -50,7 +50,7 @@ installed in `~/.config/opencode/scripts/` and run against the current worktree.
 |------|---------|
 | `skeleton` | Strip method bodies, keep signatures. Use before reading large files. |
 | `seek` | Jump to the exact definition of a class/function project-wide. |
-| `impact` | Find every usage of a symbol. Use before any refactor plan. |
+| `impact` | Find likely definitions and usages of a symbol. Use before any refactor plan. |
 | `which_test` | Find tests that reference a module. |
 | `ghost` | Find code that is not used elsewhere. |
 

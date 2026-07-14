@@ -52,10 +52,13 @@ provider or billing model.
 
 ### Step 5: Install Project Files
 Copy `project/` contents to `<target>/.opencode/`:
-- `project/agents/*.md` -> `<target>/.opencode/agents/`
+- `project/agents/orchestrator.md` -> `<target>/.opencode/agents/orchestrator.md`
+- `project/agents/review-lead.md` -> `<target>/.opencode/agents/review-lead.md`
 - `project/rules/*.md` -> `<target>/.opencode/rules/`
 - `project/wiki/WIKI_SCHEMA.md` -> `<target>/.opencode/wiki/WIKI_SCHEMA.md`
-- `project/.gitignore` -> `<target>/.opencode/.gitignore`
+
+Do not install `_project-dev-template.md` under that name; Step 7 turns it
+into a real, project-named agent.
 
 ### Step 6: Select Example Specialists
 Based on detected stack, copy matching agents from `examples/specialists/`:

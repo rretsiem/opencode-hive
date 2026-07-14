@@ -1,7 +1,7 @@
 """Ghost — dead code hunter.
 
 Scans a file for functions or classes that are never used anywhere else in the project.
-Uses git grep for fast scanning (no external dependencies).
+Uses git grep for fast scanning and falls back to grep.
 
 Usage:
     python3 scripts/ghost.py <file_to_check> [project_root]

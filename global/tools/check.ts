@@ -8,8 +8,10 @@ export default tool({
   },
   async execute(args, context) {
     const globalScript = path.join(process.env.HOME || "", ".config/opencode/scripts/check.sh")
-    const target = args.target || "src/"
-    const result = await Bun.$`bash ${globalScript} ${target}`.cwd(context.worktree || ".").text()
+    const command = args.target
+      ? Bun.$`bash ${globalScript} ${args.target}`
+      : Bun.$`bash ${globalScript}`
+    const result = await command.cwd(context.worktree || ".").text()
     return result.trim()
   },
 })

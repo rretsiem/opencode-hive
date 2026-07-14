@@ -1,7 +1,7 @@
 """Skeleton — high-density file map by removing method bodies.
 
 Keeps only signatures, docstrings, type hints, and class-level annotations.
-Reduces token usage by ~90% when understanding large files.
+Produces a smaller structural view for understanding large files.
 
 Usage:
     python3 scripts/skeleton.py <file_path>

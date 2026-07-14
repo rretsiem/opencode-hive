@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 from pathlib import Path
@@ -20,6 +21,18 @@ PLACEHOLDERS = {
     "YOUR_CODE_MODEL",
 }
 BUILTIN_SUBAGENTS = {"general", "explore", "scout"}
+HIVE_AGENTS = {
+    "orchestrator",
+    "plan",
+    "python-pro",
+    "python-reviewer",
+    "ops-specialist",
+    "ops-reviewer",
+    "wiki-curator",
+    "review-lead",
+    "_project-dev-template",
+}
+REQUIRED_INSTALLED_AGENTS = HIVE_AGENTS - {"_project-dev-template"}
 EXPLICIT_PERMISSIONS = {
     "edit",
     "task",
@@ -93,7 +106,7 @@ def validate_placeholders() -> None:
         fail(f"unused model placeholders: {sorted(missing)}")
 
 
-def validate_agents(config: dict[str, object]) -> None:
+def validate_agents(config: dict[str, object], *, installed: bool = False) -> None:
     agents = config.get("agent")
     if not isinstance(agents, dict):
         fail("resolved config contains no agents")
@@ -102,9 +115,16 @@ def validate_agents(config: dict[str, object]) -> None:
         fail("default_agent does not resolve to a primary agent")
 
     available = set(agents) | BUILTIN_SUBAGENTS
+    if installed:
+        missing_hive = REQUIRED_INSTALLED_AGENTS - set(agents)
+        if missing_hive:
+            fail(f"installed configuration is missing Hive agents: {sorted(missing_hive)}")
+
     for name, value in agents.items():
         if not isinstance(value, dict):
             fail(f"agent {name} did not resolve to an object")
+        if installed and name not in HIVE_AGENTS:
+            continue
         if value.get("hidden") and value.get("mode") != "subagent":
             fail(f"hidden agent {name} is not a subagent")
         permission = value.get("permission", {})
@@ -153,9 +173,40 @@ def validate_agents(config: dict[str, object]) -> None:
             fail(f"review-lead can invoke edit-capable agents: {sorted(unsafe)}")
 
 
+def contains_placeholder(value: object) -> bool:
+    if isinstance(value, str):
+        return bool(re.search(r"YOUR_[A-Z_]+MODEL", value))
+    if isinstance(value, dict):
+        return any(contains_placeholder(item) for item in value.values())
+    if isinstance(value, list):
+        return any(contains_placeholder(item) for item in value)
+    return False
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--target",
+        type=Path,
+        help="Validate the Hive installation resolved for an existing project",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
     if shutil.which("opencode") is None:
         fail("opencode is not installed")
+    if args.target:
+        target = args.target.expanduser().resolve()
+        if not target.is_dir():
+            fail(f"target project does not exist: {target}")
+        config = resolved_config(Path.home(), target)
+        if contains_placeholder(config):
+            fail("installed configuration still contains model placeholders")
+        validate_agents(config, installed=True)
+        print(f"OpenCode Hive installation validation passed: {target}")
+        return
     validate_placeholders()
     with tempfile.TemporaryDirectory(prefix="opencode-hive-") as temporary:
         base = Path(temporary)

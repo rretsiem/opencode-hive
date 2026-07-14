@@ -49,7 +49,7 @@ All wiki pages live in `.opencode/wiki/`. This directory is the single source of
 
 ### 1. Bootstrap (first run)
 
-When `.opencode/wiki/` doesn't exist or is empty:
+When `.opencode/wiki/index.md` does not exist:
 
 1. Scan the project: README, config files, directory structure, key modules
 2. Create `index.md` with project overview and page links
