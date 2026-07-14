@@ -8,7 +8,7 @@ OpenCode has powerful features — subagents, custom tools, per-agent permission
 
 I built this to use OpenCode seriously without assigning the most expensive model to every task. Subscription models can handle routing, planning, review, and code generation; usage-based or local models can be mixed in where they provide better quality or economics. The template uses role-based placeholders so it is not coupled to the providers or models I happened to use when it was created.
 
-This is my configuration as a starting point. I write Python, so the included specialist is `python-pro`. For other languages, swap it for a specialist that matches your stack — see `examples/specialists/` for frontend, backend, database, and devops templates. Fork it, adjust it, make it yours.
+This is my configuration as a starting point. Python and Go are two of my preferred languages, so both are first-class global specialists: `python-pro` for modern Python and `go-pro` for idiomatic Go. For other stacks, add the matching specialists from `examples/specialists/` for frontend, backend, database, and DevOps work. Fork it, adjust it, make it yours.
 
 ## What This Is
 
@@ -25,7 +25,8 @@ Tab cycle (primary agents — user switches between these):
   |-- reads code                |-- delegates to subagents:
   |-- produces plans            |
   |-- traces impact             +-- python-pro     (CODE model)
-  |-- never modifies files      +-- ops-specialist  (SUB model)
+  |-- never modifies files      +-- go-pro         (CODE model)
+                                +-- ops-specialist  (SUB model)
                                 +-- wiki-curator    (SUB model)
                                 +-- explore/scout   (built-in, read-only)
                                 +-- [your specialists]
@@ -43,7 +44,7 @@ Project-level agents:
 
 **Subagents** are hidden from the Tab cycle and invoked by primary agents via the Task tool. They do the actual work: writing code, reviewing diffs, maintaining the wiki.
 
-**Smart routing**: The orchestrator reads the request, determines which specialist(s) are needed, and fans out in parallel. A Python refactor goes to `python-pro`. A deployment question goes to `ops-specialist`. A cross-cutting feature fans out to multiple specialists simultaneously.
+**Smart routing**: The orchestrator reads the request, determines which specialist(s) are needed, and fans out in parallel. A Python refactor goes to `python-pro`, Go services and CLIs go to `go-pro`, and deployment work goes to `ops-specialist`. A cross-cutting feature fans out to multiple specialists simultaneously.
 
 ## Quick Start
 
@@ -119,7 +120,7 @@ Run `opencode models` to see every model available from your configured provider
 | Suggested tier | Cost | Used By | Example Assignment |
 |------|------|---------|-------------------|
 | **SUB** | Subscription, no per-token cost | orchestrator, plan, review-lead, reviewers, ops-specialist, wiki-curator | Models included with your provider subscription |
-| **MID** | Subscription or pay-per-token | python-pro, project-dev, frontend-dev | Your strongest coding model |
+| **MID** | Subscription or pay-per-token | python-pro, go-pro, project-dev, frontend-dev | Your strongest coding model |
 | **PREMIUM** | Frontier pricing | Manual override only | Best available models, used sparingly |
 
 Replace these placeholders in agent files and `opencode.json`:
@@ -150,6 +151,7 @@ The config includes conservative **compaction settings** (`reserved: 24000`). Tr
 |---|---|---|
 | **python-pro** | MID | Expert Python 3.12+ developer. Types, tests, modern patterns. |
 | **python-reviewer** | SUB | Read-only Python correctness and test review. |
+| **go-pro** | MID | Expert Go developer. Services, CLIs, concurrency, tests, and profiling. |
 | **ops-specialist** | SUB | Linux systems, systemd, deployment, logs, infrastructure. |
 | **ops-reviewer** | SUB | Read-only operational and deployment review. |
 | **wiki-curator** | SUB | Maintains the project wiki. Bootstrap, ingest, query, lint. |

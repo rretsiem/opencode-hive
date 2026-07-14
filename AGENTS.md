@@ -63,6 +63,7 @@ into a real, project-named agent.
 ### Step 6: Select Example Specialists
 Based on detected stack, copy matching agents from `examples/specialists/`:
 - Python -> python-pro already global
+- Go -> go-pro already global
 - JS/TS -> copy `frontend-dev.md` and `frontend-reviewer.md`
 - Backend -> copy `backend-dev.md` and `backend-reviewer.md`
 - Docker/K8s -> copy `devops-engineer.md` and `devops-reviewer.md`

@@ -24,6 +24,7 @@ BUILTIN_SUBAGENTS = {"general", "explore", "scout"}
 HIVE_AGENTS = {
     "orchestrator",
     "plan",
+    "go-pro",
     "python-pro",
     "python-reviewer",
     "ops-specialist",

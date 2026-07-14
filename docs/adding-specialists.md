@@ -11,7 +11,7 @@ Add a specialist when:
 
 Don't add a specialist when:
 - The work is a one-off task
-- An existing specialist can handle it (python-pro covers most backend work)
+- An existing specialist can handle it (`python-pro` covers Python and `go-pro` covers Go)
 - The domain is too narrow to justify a persistent agent
 
 ## Step-by-Step
@@ -109,6 +109,7 @@ permission:
   task:
     "*": deny
     "python-pro": allow
+    "go-pro": allow
     "ops-specialist": allow
     "wiki-curator": allow
     "my-specialist": allow    # <-- add here

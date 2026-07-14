@@ -35,7 +35,7 @@ largest cost impact because the orchestrator processes every request.
 The label commonly used for your strongest coding model. It can be
 subscription, usage-based, or local. The point is capability, not billing.
 
-**Assigned to**: python-pro, project-dev, frontend-dev, other implementation specialists
+**Assigned to**: python-pro, go-pro, project-dev, frontend-dev, other implementation specialists
 
 **Why**: Code generation benefits most from model quality. Implementation specialists write production code, so the quality investment pays off. These agents run less often than the orchestrator (only when implementation is needed), keeping total cost manageable.
 
@@ -56,7 +56,7 @@ These placeholders appear in agent frontmatter and `opencode.json`. Replace them
 | `YOUR_ROUTING_MODEL` | SUB | orchestrator.md | Fast routing and delegation decisions |
 | `YOUR_ANALYSIS_MODEL` | SUB | plan.md, review-lead.md, `*-reviewer.md`, ops-specialist.md, wiki-curator.md | Analysis, investigation, review |
 | `YOUR_FAST_MODEL` | SUB | opencode.json (`small_model`) | Titles and other lightweight tasks |
-| `YOUR_CODE_MODEL` | MID | python-pro.md, project agents, example specialists | Code generation and editing |
+| `YOUR_CODE_MODEL` | MID | python-pro.md, go-pro.md, project agents, example specialists | Code generation and editing |
 
 Placeholder names describe roles, not providers or prices. Each replacement
 must use the exact `provider/model-id` shown by `opencode models`.
@@ -113,6 +113,7 @@ The `reasoningEffort` field is passed directly to the provider as a model option
 | orchestrator | SUB | none | Processes every request. Routing doesn't need reasoning. Cost-critical. |
 | plan | SUB | none | Investigation is IO-bound (reading files), not reasoning-bound. |
 | python-pro | MID | high when supported | Writes production code. Reasoning can improve correctness. |
+| go-pro | MID | high when supported | Writes production Go, including concurrency-sensitive code. |
 | ops-specialist | SUB | none | Systems knowledge is pattern-matching, not deep reasoning. |
 | wiki-curator | SUB | none | Writing documentation from read context. Not computationally hard. |
 | review-lead | SUB | none | Routing and synthesis are high-volume tasks. |
@@ -230,4 +231,5 @@ You can use subscription models for the SUB tier and pay-per-token for the MID t
 ```
 orchestrator.md   → model: <subscription-provider>/<routing-model>
 python-pro.md     → model: <usage-provider>/<coding-model>
+go-pro.md         → model: <usage-provider>/<coding-model>
 ```

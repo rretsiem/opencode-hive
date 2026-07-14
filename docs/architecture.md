@@ -31,7 +31,7 @@ This architecture draws from Anthropic's [Building effective agents](https://www
 - Specialists have domain-specific knowledge baked into their system prompts
 - Parallel execution reduces wall-clock time for multi-domain tasks
 
-The key insight is that **model intelligence matters most at the implementation layer**, not the routing layer. Routing is pattern matching ("Python code? -> python-pro"). Implementation requires deeper reasoning about code structure, edge cases, and testing. Assigning a fast model to routing and the strongest suitable model to implementation concentrates quality and compute where they matter most.
+The key insight is that **model intelligence matters most at the implementation layer**, not the routing layer. Routing is pattern matching ("Python code? -> python-pro", "Go code? -> go-pro"). Implementation requires deeper reasoning about code structure, edge cases, and testing. Assigning a fast model to routing and the strongest suitable model to implementation concentrates quality and compute where they matter most.
 
 ## Agent Communication
 
@@ -43,6 +43,7 @@ orchestrator
   |-- Task("explore", "Locate the auth flow and return file paths")
   |-- Task("scout", "Check the current upstream API contract")
   |-- Task("python-pro", "Refactor the auth module: ...")
+  |-- Task("go-pro", "Make the worker pool cancellation-safe: ...")
   |-- Task("ops-specialist", "Update the systemd unit: ...")
   |
   Results flow back to orchestrator
@@ -88,6 +89,7 @@ permission:
   task:
     "*": deny           # Can't invoke any agents by default
     "python-pro": allow # Explicit allow for specific agents
+    "go-pro": allow
     "ops-specialist": allow
 ```
 
@@ -118,6 +120,7 @@ This prevents:
   agents/                        # Agent definitions
     orchestrator.md
     plan.md
+    go-pro.md
     python-reviewer.md
     python-pro.md
     ops-reviewer.md
