@@ -1,7 +1,7 @@
 # Project Conventions
 
 TODO: Fill in your project-specific conventions. This file is loaded into
-every Opencode session via the `instructions` config. Keep it under 50 lines.
+every OpenCode session via the `instructions` config. Keep it under 50 lines.
 
 ## Build & Test
 - Build: `TODO: your build command`

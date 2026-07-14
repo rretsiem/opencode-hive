@@ -2,7 +2,7 @@
 description: "Linux systems, systemd services, deployment, logs, and infrastructure specialist"
 mode: subagent
 hidden: true
-model: YOUR_FREE_STRONG_MODEL
+model: YOUR_ANALYSIS_MODEL
 temperature: 0.1
 steps: 15
 permission:

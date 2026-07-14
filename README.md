@@ -1,16 +1,14 @@
-# Opencode Hive
+# OpenCode Hive
 
-A multi-agent architecture for [Opencode](https://opencode.ai) with cost-optimized model routing, parallel specialist execution, and a self-maintaining project wiki.
+A multi-agent architecture for [OpenCode](https://opencode.ai) with cost-optimized model routing, parallel specialist execution, and a self-maintaining project wiki.
 
 ## Why This Exists
 
-Opencode has powerful features — subagents, custom tools, per-agent permissions, skill files, model variants — that I haven't seen used much in practice. Most setups are a single agent with one model. That works, but it leaves a lot on the table.
+OpenCode has powerful features — subagents, custom tools, per-agent permissions, skill files, model variants — that I haven't seen used much in practice. Most setups are a single agent with one model. That works, but it leaves a lot on the table.
 
-I built this because I wanted to use Opencode seriously without paying $200/month for Claude Max or ChatGPT Pro. My setup runs entirely on subscription plans: ChatGPT Plus ($20/month), [Minimax](https://platform.minimax.io/subscribe/token-plan?code=6u6t1KlmkF&source=link)\* ($20/month), and [Z.AI GLM Pro](https://z.ai/subscribe?ic=YBUR2UCCPY)\* ($90/quarter). Subscription models handle routing, planning, review, and even code generation. If you prefer pay-per-token for coding specialists, [OpenRouter](https://openrouter.ai) and [Opencode Zen](https://opencode.ai/docs/zen/) are good options — see [docs/model-selection.md](docs/model-selection.md#pay-per-token-alternative-openrouter--opencode-zen) for setup.
+I built this to use OpenCode seriously without assigning the most expensive model to every task. Subscription models can handle routing, planning, review, and code generation; usage-based or local models can be mixed in where they provide better quality or economics. The template uses role-based placeholders so it is not coupled to the providers or models I happened to use when it was created.
 
 This is my configuration as a starting point. I write Python, so the included specialist is `python-pro`. For other languages, swap it for a specialist that matches your stack — see `examples/specialists/` for frontend, backend, database, and devops templates. Fork it, adjust it, make it yours.
-
-\*Minimax and Z.AI links are referrals — 10% off for you.
 
 ## What This Is
 
@@ -26,7 +24,7 @@ Tab cycle (primary agents — user switches between these):
   |                             |
   |-- reads code                |-- delegates to subagents:
   |-- produces plans            |
-  |-- traces impact             +-- python-pro     (PAID model)
+  |-- traces impact             +-- python-pro     (CODE model)
   |-- never modifies files      +-- ops-specialist  (SUB model)
                                 +-- wiki-curator    (SUB model)
                                 +-- [your specialists]
@@ -34,7 +32,7 @@ Tab cycle (primary agents — user switches between these):
 Project-level subagents (installed per-project):
 
   review-lead                   your-project-dev
-  (SUB model, read-only)       (PAID model, full access)
+  (SUB model, read-only)       (CODE model, full access)
   |                             |
   +-- routes diffs to           +-- knows your project's
       domain specialists            architecture & conventions
@@ -48,11 +46,11 @@ Project-level subagents (installed per-project):
 
 ## Quick Start
 
-**Prerequisites**: [Opencode](https://opencode.ai) installed, at least one LLM provider configured.
+**Prerequisites**: [OpenCode](https://opencode.ai) installed, at least one LLM provider configured.
 
 ### Option A: AI-Assisted Setup (recommended)
 
-Open Opencode in this repository:
+Open OpenCode in this repository:
 
 ```bash
 cd /path/to/opencode-hive
@@ -63,7 +61,7 @@ Then say:
 
 > Set this up for my project at /path/to/my-project
 
-Opencode reads the `AGENTS.md` file, discovers your available models, detects your project stack, and installs everything with the right model assignments. See [AGENTS.md](AGENTS.md) for the full setup protocol.
+OpenCode reads the `AGENTS.md` file, discovers your available models, detects your project stack, and installs everything with the right model assignments. See [AGENTS.md](AGENTS.md) for the full setup protocol.
 
 ### Option B: Manual Setup
 
@@ -100,14 +98,14 @@ Replace these placeholders in agent files and `opencode.json`:
 
 | Placeholder | Tier | Role |
 |---|---|---|
-| `YOUR_FREE_ROUTING_MODEL` | SUB | Orchestrator routing decisions |
-| `YOUR_FREE_STRONG_MODEL` | SUB | Planning, review, wiki curation |
-| `YOUR_FREE_FAST_MODEL` | SUB | Quick summaries, small model tasks |
-| `YOUR_PAID_CODEX_MODEL` | MID | Code generation and variant config in opencode.json |
+| `YOUR_ROUTING_MODEL` | SUB | Orchestrator routing decisions |
+| `YOUR_ANALYSIS_MODEL` | SUB | Planning, review, wiki curation |
+| `YOUR_FAST_MODEL` | SUB | Titles and other lightweight tasks |
+| `YOUR_CODE_MODEL` | MID | Code generation and editing |
 
-Some agents use **reasoning variants** (e.g., `YOUR_PAID_CODEX_MODEL with reasoningEffort: high`). These configure the model to spend more compute on reasoning before responding. The `high` reasoning effort is the default for coding tasks; `xhigh` is available for the hardest problems. See [docs/model-selection.md](docs/model-selection.md) for a detailed guide.
+Reasoning controls are provider-specific model options, not part of these model IDs. Add `reasoningEffort`, `thinking`, or a built-in variant only after selecting a model that supports it. See [docs/model-selection.md](docs/model-selection.md) for details.
 
-The config also includes tuned **compaction settings** (`reserved: 24000`) that trigger context compression earlier than default — important for models like GLM/ZhipuAI that degrade before their nominal context limit. Provider **timeout settings** (`timeout: 600000`, `chunkTimeout: 45000`) handle slow providers and extended reasoning. See [docs/model-selection.md](docs/model-selection.md#compaction--context-tuning) for tuning guidance.
+The config includes conservative **compaction settings** (`reserved: 24000`). Treat them as starting points and tune them for the context window of the models you select. Provider-specific timeout examples are covered in [docs/model-selection.md](docs/model-selection.md#provider-timeout-settings).
 
 ## Agents
 
@@ -122,7 +120,7 @@ The config also includes tuned **compaction settings** (`reserved: 24000`) that 
 
 | Agent | Model Tier | Role |
 |---|---|---|
-| **python-pro** | PAID | Expert Python 3.12+ developer. Types, tests, modern patterns. |
+| **python-pro** | MID | Expert Python 3.12+ developer. Types, tests, modern patterns. |
 | **ops-specialist** | SUB | Linux systems, systemd, deployment, logs, infrastructure. |
 | **wiki-curator** | SUB | Maintains the project wiki. Bootstrap, ingest, query, lint. |
 
@@ -131,22 +129,22 @@ The config also includes tuned **compaction settings** (`reserved: 24000`) that 
 | Agent | Model Tier | Role |
 |---|---|---|
 | **review-lead** | SUB | Multi-lens code review coordinator. Routes diffs to domain specialists. |
-| **[project]-dev** | PAID | Your project specialist. Created from `_project-dev-template.md`. |
+| **[project]-dev** | MID | Your project specialist. Created from `_project-dev-template.md`. |
 
 ### Example Specialists (in `examples/specialists/`)
 
 | Agent | Model Tier | Role |
 |---|---|---|
-| **frontend-dev** | PAID | React/Vue/Svelte, TypeScript, CSS, accessibility. |
-| **backend-dev** | PAID | API design, business logic, security. Language-agnostic. |
-| **database-dev** | PAID | Schema design, migrations, query optimization, indexing. |
-| **devops-engineer** | PAID | Docker, Kubernetes, Terraform, CI/CD, observability. |
+| **frontend-dev** | MID | React/Vue/Svelte, TypeScript, CSS, accessibility. |
+| **backend-dev** | MID | API design, business logic, security. Language-agnostic. |
+| **database-dev** | MID | Schema design, migrations, query optimization, indexing. |
+| **devops-engineer** | MID | Docker, Kubernetes, Terraform, CI/CD, observability. |
 
 Copy the ones matching your stack into `~/.config/opencode/agents/` and add them to the orchestrator's `permission.task` allow list.
 
 ## Custom Tools and Scripts
 
-Tools appear as native LLM tools in Opencode -- typed parameters, descriptions, auto-discovered from `~/.config/opencode/tools/`. Each tool wraps a Python script from `scripts/`.
+Tools appear as native LLM tools in OpenCode -- typed parameters, descriptions, auto-discovered from `~/.config/opencode/tools/`. Each tool wraps a Python script from `scripts/`.
 
 | Tool | Script | Purpose |
 |------|--------|---------|
@@ -247,17 +245,17 @@ On first use: "Bootstrap the wiki for this project." The wiki-curator scans the 
 
 **Wiki not bootstrapping** -- Ensure `.opencode/wiki/` directory exists (even if empty). The wiki-curator checks for this directory to determine if it should bootstrap.
 
-**Tools not appearing** -- Tool `.ts` files must be in `~/.config/opencode/tools/`. Verify with `ls ~/.config/opencode/tools/`. Opencode auto-discovers tools on startup.
+**Tools not appearing** -- Tool `.ts` files must be in `~/.config/opencode/tools/`. Verify with `ls ~/.config/opencode/tools/`. OpenCode auto-discovers tools on startup.
 
-**Scripts not found by tools** -- Tools look for scripts in two locations: `<project>/scripts/` first, then `~/.config/opencode/scripts/`. Ensure scripts are in at least one location and are executable.
+**Scripts not found by tools** -- Global tools execute their trusted implementations from `~/.config/opencode/scripts/`. Ensure that directory was copied during installation and its scripts are readable.
 
 ## References
 
-- [Opencode Documentation](https://opencode.ai/docs/)
-- [Opencode Agents](https://opencode.ai/docs/agents/)
-- [Opencode Custom Tools](https://opencode.ai/docs/custom-tools)
-- [Opencode Models & Variants](https://opencode.ai/docs/models/)
-- [Opencode Configuration](https://opencode.ai/docs/configuration/)
+- [OpenCode Documentation](https://opencode.ai/docs/)
+- [OpenCode Agents](https://opencode.ai/docs/agents/)
+- [OpenCode Custom Tools](https://opencode.ai/docs/custom-tools)
+- [OpenCode Models & Variants](https://opencode.ai/docs/models/)
+- [OpenCode Configuration](https://opencode.ai/docs/config/)
 - [Anthropic Multi-Agent Research](https://www.anthropic.com/engineering/multi-agent-research-system)
 - [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 

@@ -4,7 +4,7 @@ The design decisions behind this multi-agent system and why they exist.
 
 ## Design Principles
 
-1. **Route cheap, execute expensive.** The orchestrator (free model) decides what to do. Specialists (paid models) do it. This inverts the typical pattern where a single expensive model handles everything.
+1. **Route efficiently, execute capably.** A fast model handles routing. Stronger models handle implementation. Either can come from a subscription, usage-based provider, or local runtime; the role matters more than the billing model.
 
 2. **Flat agent tree.** One orchestrator, multiple specialists. No chains of delegation (orchestrator -> sub-orchestrator -> specialist). Deep trees lose context and multiply latency. If a task needs two domains, fan out to both specialists in parallel.
 
@@ -27,7 +27,7 @@ This architecture draws from Anthropic's [Building effective agents](https://www
 - Specialists have domain-specific knowledge baked into their system prompts
 - Parallel execution reduces wall-clock time for multi-domain tasks
 
-The key insight is that **model intelligence matters most at the implementation layer**, not the routing layer. Routing is pattern matching ("Python code? -> python-pro"). Implementation requires deep reasoning about code structure, edge cases, and testing. By using free models for routing and paid models for implementation, you get the best quality where it matters most while keeping overall cost low.
+The key insight is that **model intelligence matters most at the implementation layer**, not the routing layer. Routing is pattern matching ("Python code? -> python-pro"). Implementation requires deeper reasoning about code structure, edge cases, and testing. Assigning a fast model to routing and the strongest suitable model to implementation concentrates quality and compute where they matter most.
 
 ## Agent Communication
 

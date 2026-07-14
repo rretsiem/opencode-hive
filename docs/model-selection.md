@@ -26,7 +26,7 @@ Models included with a provider subscription. You already pay for these — no p
 
 ### MID Tier (Coding Models — Subscription or Pay-Per-Token)
 
-Your strongest coding model. This can be a subscription model (e.g., GPT-4o from ChatGPT Plus) or a pay-per-token model from OpenRouter or Opencode Zen. The point is quality, not pricing model.
+Your strongest coding model. This can be a subscription model or a pay-per-token model from providers such as OpenRouter or OpenCode Zen. The point is quality, not pricing model.
 
 **Assigned to**: python-pro, project-dev, frontend-dev, other implementation specialists
 
@@ -46,23 +46,26 @@ These placeholders appear in agent frontmatter and `opencode.json`. Replace them
 
 | Placeholder | Tier | Where Used | Role |
 |---|---|---|---|
-| `YOUR_FREE_ROUTING_MODEL` | SUB | orchestrator.md | Fast routing and delegation decisions |
-| `YOUR_FREE_STRONG_MODEL` | SUB | plan.md, review-lead.md, ops-specialist.md, wiki-curator.md | Analysis, investigation, review |
-| `YOUR_FREE_FAST_MODEL` | SUB | opencode.json (`small_model`) | Quick summaries, compaction |
-| `YOUR_PAID_CODEX_MODEL` | MID | python-pro.md, _project-dev-template.md, opencode.json | Code generation, editing, and variant config |
+| `YOUR_ROUTING_MODEL` | SUB | orchestrator.md | Fast routing and delegation decisions |
+| `YOUR_ANALYSIS_MODEL` | SUB | plan.md, review-lead.md, ops-specialist.md, wiki-curator.md | Analysis, investigation, review |
+| `YOUR_FAST_MODEL` | SUB | opencode.json (`small_model`) | Titles and other lightweight tasks |
+| `YOUR_CODE_MODEL` | MID | python-pro.md, project agents, example specialists | Code generation and editing |
+
+Placeholder names describe roles, not providers or prices. Each replacement
+must use the exact `provider/model-id` shown by `opencode models`.
 
 ## Reasoning Variants
 
 Some models support **reasoning effort** settings that control how much compute the model spends thinking before responding. Higher reasoning effort produces better results for complex tasks at the cost of more tokens.
 
-**Agent frontmatter format** (correct):
+**Optional agent frontmatter for a compatible OpenAI-style model:**
 
 ```yaml
-model: YOUR_PAID_CODEX_MODEL
-reasoningEffort: high    # Options: low, medium, high, xhigh
+model: YOUR_CODE_MODEL
+reasoningEffort: high    # Only when the selected provider/model supports it
 ```
 
-The `reasoningEffort` field is passed directly to the provider as a model option. This replaces the legacy colon-suffix format (`model:YOUR_PAID_CODEX_MODEL:high`) which is no longer supported.
+The `reasoningEffort` field is passed directly to the provider as a model option. It is intentionally absent from the provider-neutral agent templates. Add it—or use that provider's equivalent option—only after selecting a compatible model.
 
 **Configure default variants in `opencode.json`** (optional):
 
@@ -94,7 +97,7 @@ The `reasoningEffort` field is passed directly to the provider as a model option
 - `xhigh` -- Use for debugging subtle issues, complex refactors, or architecture-level changes. Costs more tokens due to extended reasoning.
 - `medium` or `low` -- For simpler tasks where full reasoning is overkill.
 
-**Note**: Reasoning effort options vary by model. OpenAI models support `low`, `medium`, `high`, `xhigh`. Check your model's documentation for available options.
+**Note**: Reasoning options and accepted values vary by provider and model. OpenCode also supplies built-in variants for many popular models. Check `opencode models` and the provider documentation before applying an option globally.
 
 ## Assignment Matrix
 
@@ -102,18 +105,18 @@ The `reasoningEffort` field is passed directly to the provider as a model option
 |-------|------|-----------|-----------|
 | orchestrator | SUB | none | Processes every request. Routing doesn't need reasoning. Cost-critical. |
 | plan | SUB | none | Investigation is IO-bound (reading files), not reasoning-bound. |
-| python-pro | PAID | high | Writes production code. Reasoning improves correctness. |
+| python-pro | MID | high when supported | Writes production code. Reasoning can improve correctness. |
 | ops-specialist | SUB | none | Systems knowledge is pattern-matching, not deep reasoning. |
 | wiki-curator | SUB | none | Writing documentation from read context. Not computationally hard. |
-| review-lead | SUB | none | Routing + synthesis. Volume makes paid models expensive. |
-| project-dev | PAID | high | Same rationale as python-pro -- writes project-specific code. |
-| frontend-dev | PAID | high | Same rationale -- code generation benefits from quality. |
+| review-lead | SUB | none | Routing and synthesis are high-volume tasks. |
+| project-dev | MID | high when supported | Same rationale as python-pro -- writes project-specific code. |
+| frontend-dev | MID | high when supported | Same rationale -- code generation benefits from quality. |
 
 
 
 ## Compaction & Context Tuning
 
-The `compaction` settings in `opencode.json` control when Opencode compresses conversation history to free up context space. This matters more than you'd expect — some models degrade well before hitting their nominal context limit.
+The `compaction` settings in `opencode.json` control when OpenCode compresses conversation history to free up context space. This matters more than you'd expect — some models degrade well before hitting their nominal context limit.
 
 ```json
 {
@@ -121,7 +124,6 @@ The `compaction` settings in `opencode.json` control when Opencode compresses co
     "auto": true,
     "prune": true,
     "reserved": 24000
-  }
 }
 ```
 
@@ -133,11 +135,11 @@ The `compaction` settings in `opencode.json` control when Opencode compresses co
 
 **Why `reserved: 24000` instead of 10000?**
 
-Some models (GLM/ZhipuAI CodingPlan, smaller-context models) degrade at 50-60% context utilization — well before the technical limit. A larger reserve triggers compaction earlier, keeping the model in its effective range. Models with reliable full-context performance (Claude, GPT-4.1) can use `reserved: 10000` instead.
+It is a conservative template default that leaves room for compaction before the context window is exhausted. It is not optimal for every model; measure real sessions and adjust it to the selected model's context window and long-context behavior.
 
 **Tuning for your models:**
-- Models with 128K+ context and good long-range attention: `reserved: 10000`
-- Models with known degradation before limit (GLM, some open-source): `reserved: 24000-40000`
+- Models with large context windows and reliable long-range attention: start around `reserved: 10000`
+- Models that become unreliable late in the context window: try `reserved: 24000-40000`
 - Models with 32K or smaller context: `reserved: 8000` (compaction too aggressive wastes context)
 
 ## Provider Timeout Settings
@@ -166,7 +168,7 @@ Increase `timeout` if reasoning models take long on complex prompts. Increase `c
 
 ## Cost Optimization Tips
 
-1. **Start with subscription models everywhere.** Only upgrade to PAID when you notice quality gaps in generated code.
+1. **Start with models already covered by your subscriptions.** Move a role to a usage-based model when you identify a concrete quality or capability gap.
 
 2. **Monitor token usage by agent.** If the orchestrator is consuming more tokens than specialists, it's doing too much work itself instead of delegating.
 
@@ -178,9 +180,9 @@ Increase `timeout` if reasoning models take long on complex prompts. Increase `c
 
 6. **Recheck after provider updates.** Providers frequently add new models and change pricing. Run `opencode models` periodically and reassess assignments.
 
-## Pay-Per-Token Alternative: OpenRouter & Opencode Zen
+## Pay-Per-Token Alternative: OpenRouter & OpenCode Zen
 
-If you want pay-per-token models instead of (or alongside) subscriptions, two options work well with Opencode:
+If you want pay-per-token models instead of (or alongside) subscriptions, two options work well with OpenCode:
 
 ### OpenRouter
 
@@ -199,13 +201,8 @@ Add to `opencode.json`:
         "apiKey": "{env:OPENROUTER_API_KEY}"
       },
       "models": {
-        "anthropic/claude-sonnet-4": {
-          "name": "Claude Sonnet 4",
-          "limit": { "context": 200000, "output": 65536 }
-        },
-        "deepseek/deepseek-chat-v3": {
-          "name": "DeepSeek V3",
-          "limit": { "context": 128000, "output": 16384 }
+        "<vendor>/<model-id>": {
+          "name": "Your coding model"
         }
       }
     }
@@ -215,15 +212,15 @@ Add to `opencode.json`:
 
 Set `export OPENROUTER_API_KEY=sk-or-v1-...` in your shell. Model IDs follow the format `openrouter/vendor/model-name`.
 
-### Opencode Zen
+### OpenCode Zen
 
-[Opencode Zen](https://opencode.ai/docs/zen/) is Opencode's own model gateway — 40+ coding models sold at cost. Run `/connect` in Opencode, select "OpenCode Zen", and paste your API key. Models use the `opencode/model-id` format.
+[OpenCode Zen](https://opencode.ai/docs/zen/) is OpenCode's optional model gateway. Run `/connect` in OpenCode, select "OpenCode Zen", and follow the authentication flow. Models use the `opencode/model-id` format.
 
 ### Mixing Subscription and Pay-Per-Token
 
 You can use subscription models for the SUB tier and pay-per-token for the MID tier in the same setup. Set each agent's `model` field to the right provider:
 
 ```
-orchestrator.md   → model: chatgpt/gpt-4o          (subscription)
-python-pro.md     → model: openrouter/anthropic/claude-sonnet-4  (pay-per-token)
+orchestrator.md   → model: <subscription-provider>/<routing-model>
+python-pro.md     → model: <usage-provider>/<coding-model>
 ```

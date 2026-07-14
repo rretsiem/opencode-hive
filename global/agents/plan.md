@@ -1,7 +1,7 @@
 ---
 description: "Read-only analysis and planning agent. Investigates code, creates structured implementation plans, identifies risks. Cannot modify files."
 mode: primary
-model: YOUR_FREE_STRONG_MODEL
+model: YOUR_ANALYSIS_MODEL
 temperature: 0.2
 steps: 25
 permission:

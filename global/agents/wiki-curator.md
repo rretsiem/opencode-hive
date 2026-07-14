@@ -2,7 +2,7 @@
 description: "Maintains the project wiki — ingests sources, updates pages, cross-references, and lints for consistency."
 mode: subagent
 hidden: true
-model: YOUR_FREE_STRONG_MODEL
+model: YOUR_ANALYSIS_MODEL
 temperature: 0.1
 steps: 25
 permission:

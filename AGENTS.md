@@ -1,6 +1,6 @@
-# Opencode Hive
+# OpenCode Hive
 
-A multi-agent architecture for Opencode.
+A multi-agent architecture for OpenCode.
 This is a template -- not a project to develop, but a system to install into other projects.
 
 ## Directory Structure
@@ -17,7 +17,7 @@ When a user asks you to "set this up", "install this", or "configure my project"
 ### Step 1: Discover Available Models
 Run `opencode models` and present the output. Ask the user:
 - "Which of these providers are subscription/free (no per-token cost)?"
-- "Which provider do you want for code generation (paid is better quality)?"
+- "Which provider/model do you want for code generation?"
 
 Categorize into three tiers:
 - **SUB**: Subscription models -- for routing, planning, review, wiki
@@ -41,10 +41,14 @@ Copy each `global/` folder to `~/.config/opencode/`:
 
 ### Step 4: Replace Model Placeholders
 In all copied files, replace these four placeholders with real model IDs:
-- `YOUR_FREE_ROUTING_MODEL` -> free model for routing
-- `YOUR_FREE_STRONG_MODEL` -> free model for analysis
-- `YOUR_FREE_FAST_MODEL` -> free model for summaries
-- `YOUR_PAID_CODEX_MODEL` -> paid model for code generation
+- `YOUR_ROUTING_MODEL` -> fast, reliable model for routing
+- `YOUR_ANALYSIS_MODEL` -> strong model for planning and review
+- `YOUR_FAST_MODEL` -> inexpensive model for titles and summaries
+- `YOUR_CODE_MODEL` -> strongest available code-generation model
+
+Every replacement must be a complete OpenCode model ID in
+`provider/model-id` format. These role names do not require a particular
+provider or billing model.
 
 ### Step 5: Install Project Files
 Copy `project/` contents to `<target>/.opencode/`:

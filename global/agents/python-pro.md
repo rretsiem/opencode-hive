@@ -2,8 +2,7 @@
 description: "Expert Python 3.12+ developer with mastery of uv, ruff, Pydantic v2, and modern typing. Framework-agnostic."
 mode: subagent
 hidden: true
-model: YOUR_PAID_CODEX_MODEL
-reasoningEffort: high
+model: YOUR_CODE_MODEL
 temperature: 0.1
 steps: 20
 permission:

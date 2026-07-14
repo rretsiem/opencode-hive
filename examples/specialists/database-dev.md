@@ -2,8 +2,7 @@
 description: "Database specialist — schema design, migrations, query optimization, indexing, N+1 detection, transaction scope."
 mode: subagent
 hidden: true
-model: YOUR_PAID_CODEX_MODEL
-reasoningEffort: high
+model: YOUR_CODE_MODEL
 temperature: 0.1
 steps: 20
 permission:

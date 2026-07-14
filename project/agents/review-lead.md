@@ -2,7 +2,7 @@
 description: "Multi-lens code review coordinator. Analyzes diffs, routes to domain specialists in parallel, synthesizes findings."
 mode: subagent
 hidden: true
-model: YOUR_FREE_STRONG_MODEL
+model: YOUR_ANALYSIS_MODEL
 temperature: 0.2
 steps: 15
 permission:

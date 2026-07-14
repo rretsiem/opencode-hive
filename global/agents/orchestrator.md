@@ -1,7 +1,7 @@
 ---
 description: "Project coordinator that analyzes requests, discovers tech stacks, and orchestrates focused specialists in parallel. Use for multi-domain tasks."
 mode: primary
-model: YOUR_FREE_ROUTING_MODEL
+model: YOUR_ROUTING_MODEL
 temperature: 0.2
 steps: 30
 permission:
