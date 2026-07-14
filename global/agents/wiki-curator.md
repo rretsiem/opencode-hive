@@ -23,6 +23,20 @@ permission:
     "wc *": allow
   task: deny
   skill: deny
+  webfetch: deny
+  websearch: deny
+  codesearch: deny
+  external_directory: deny
+  question: deny
+  doom_loop: ask
+  lsp: deny
+  check: deny
+  seek: deny
+  impact: deny
+  which_test: deny
+  skeleton: deny
+  ghost: deny
+  wiki_search: allow
 ---
 
 You are the wiki curator. You maintain the project knowledge wiki at `.opencode/wiki/`.

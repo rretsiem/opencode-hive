@@ -60,29 +60,38 @@ Copy `project/` contents to `<target>/.opencode/`:
 ### Step 6: Select Example Specialists
 Based on detected stack, copy matching agents from `examples/specialists/`:
 - Python -> python-pro already global
-- JS/TS -> copy `frontend-dev.md`
-- Docker/K8s -> copy `devops-engineer.md`
-- SQL -> copy `database-dev.md`
+- JS/TS -> copy `frontend-dev.md` and `frontend-reviewer.md`
+- Backend -> copy `backend-dev.md` and `backend-reviewer.md`
+- Docker/K8s -> copy `devops-engineer.md` and `devops-reviewer.md`
+- SQL -> copy `database-dev.md` and `database-reviewer.md`
 
-Add each to orchestrator.md's `permission.task` (e.g., `"frontend-dev": allow`).
+Add each implementation agent to `<target>/.opencode/agents/orchestrator.md`
+under `permission.task` (e.g., `"frontend-dev": allow`). Add its read-only
+reviewer to `<target>/.opencode/agents/review-lead.md`. Never allow an
+edit-capable implementation agent from review-lead. Do not add project-only
+agents to the global orchestrator.
 
 ### Step 7: Create Project-Specific Agent
 Use `project/agents/_project-dev-template.md` as starting point:
 1. Scan target project structure
 2. Fill in project layout, conventions, dev commands, key files
 3. Save as `<target>/.opencode/agents/<project-name>-dev.md`
-4. Add to orchestrator's task permissions
-5. Add to review-lead's task permissions
+4. Add to the project-local orchestrator's task permissions
+5. If it needs review coverage, create a separate `<project-name>-reviewer.md`
+   with `edit: deny` and add only that reviewer to review-lead
 
 ### Step 8: Customize Review Lead
 Edit `<target>/.opencode/agents/review-lead.md`:
 - Fill in the domain routing table with actual file patterns from the project
+- Allow only matching `*-reviewer` agents in `permission.task`
 
-### Step 9: Update Orchestrator Permissions
-Edit `~/.config/opencode/agents/orchestrator.md`:
-- Add every new specialist to `permission.task` (e.g., `"my-specialist": allow`)
+### Step 9: Update Project Orchestrator Permissions
+Edit `<target>/.opencode/agents/orchestrator.md`:
+- Keep the built-in `explore` and `scout` permissions
+- Add every installed specialist to `permission.task` (e.g., `"my-specialist": allow`)
 - Add every new project-specific agent the same way
-- Without this, the orchestrator cannot delegate to your agents
+- Keep the global orchestrator limited to globally installed agents
+- Without these project-local permissions, the orchestrator cannot delegate to your agents
 
 ### Step 10: Verify Setup
 ```bash

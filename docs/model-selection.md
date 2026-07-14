@@ -20,7 +20,7 @@ Every model falls into one of three cost tiers. The goal is to use the cheapest 
 
 Models included with a provider subscription. You already pay for these — no per-token charges. These handle the majority of agent work.
 
-**Assigned to**: orchestrator, plan, review-lead, ops-specialist, wiki-curator
+**Assigned to**: orchestrator, plan, review-lead, read-only reviewers, ops-specialist, wiki-curator
 
 **Why**: Routing, planning, and review are high-volume but don't need frontier intelligence. A subscription model handles these with minimal quality loss. Since the orchestrator processes every request, using a subscription model here has the largest cost impact.
 
@@ -47,7 +47,7 @@ These placeholders appear in agent frontmatter and `opencode.json`. Replace them
 | Placeholder | Tier | Where Used | Role |
 |---|---|---|---|
 | `YOUR_ROUTING_MODEL` | SUB | orchestrator.md | Fast routing and delegation decisions |
-| `YOUR_ANALYSIS_MODEL` | SUB | plan.md, review-lead.md, ops-specialist.md, wiki-curator.md | Analysis, investigation, review |
+| `YOUR_ANALYSIS_MODEL` | SUB | plan.md, review-lead.md, `*-reviewer.md`, ops-specialist.md, wiki-curator.md | Analysis, investigation, review |
 | `YOUR_FAST_MODEL` | SUB | opencode.json (`small_model`) | Titles and other lightweight tasks |
 | `YOUR_CODE_MODEL` | MID | python-pro.md, project agents, example specialists | Code generation and editing |
 

@@ -23,6 +23,20 @@ permission:
     "python3 *ghost*": allow
   task: deny
   skill: deny
+  webfetch: deny
+  websearch: deny
+  codesearch: deny
+  external_directory: deny
+  question: allow
+  doom_loop: ask
+  lsp: allow
+  check: deny
+  seek: allow
+  impact: allow
+  which_test: allow
+  skeleton: allow
+  ghost: allow
+  wiki_search: allow
 ---
 
 You are the planning agent. You investigate codebases and produce structured implementation plans. You **never** create, modify, or delete files. You **never** run destructive commands.

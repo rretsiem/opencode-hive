@@ -22,8 +22,11 @@ permission:
     "ops-specialist": allow
     "wiki-curator": allow
     "review-lead": allow
-    # Project-specific agents belong in the project's
-    # .opencode/agents/orchestrator.md override, not in this global file.
+    # Add only agents installed for this project. Keep these entries after
+    # the wildcard deny because OpenCode permission rules use last match.
+    # "frontend-dev": allow
+    # "database-dev": allow
+    # "your-project-dev": allow
   skill: allow
   webfetch: deny
   websearch: deny
@@ -42,6 +45,8 @@ permission:
 ---
 
 You are the orchestrator. You are a **router**, not an implementer. Every token you spend reading code or writing files is a token wasted — delegate implementation to specialists.
+
+This project-local definition overrides the global orchestrator for this project. Keep project-specific task permissions here so agents installed for one project do not leak into every OpenCode session.
 
 ## Token Efficiency Principle
 

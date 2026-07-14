@@ -25,6 +25,20 @@ permission:
     "systemctl *": ask
   task: deny
   skill: deny
+  webfetch: deny
+  websearch: deny
+  codesearch: deny
+  external_directory: ask
+  question: deny
+  doom_loop: ask
+  lsp: deny
+  check: deny
+  seek: deny
+  impact: deny
+  which_test: deny
+  skeleton: deny
+  ghost: deny
+  wiki_search: deny
 ---
 
 You are a Linux systems and operations specialist.

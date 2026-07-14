@@ -82,6 +82,12 @@ cp project/.gitignore /path/to/my-project/.opencode/.gitignore
 
 # 3. Replace model placeholders in all .md and .json files
 # See "Model Selection" below for choosing models
+
+# 4. Add stack-specific implementation/reviewer pairs, then edit the
+# project-local orchestrator.md and review-lead.md allow lists
+
+# 5. Verify the installed template
+python3 scripts/validate-template.py
 ```
 
 ## Model Selection
@@ -90,7 +96,7 @@ Run `opencode models` to see every model available from your configured provider
 
 | Tier | Cost | Used By | Example Assignment |
 |------|------|---------|-------------------|
-| **SUB** | Subscription, no per-token cost | orchestrator, plan, review-lead, ops-specialist, wiki-curator | Models included with your provider subscription |
+| **SUB** | Subscription, no per-token cost | orchestrator, plan, review-lead, reviewers, ops-specialist, wiki-curator | Models included with your provider subscription |
 | **MID** | Subscription or pay-per-token | python-pro, project-dev, frontend-dev | Your strongest coding model |
 | **PREMIUM** | Frontier pricing | Manual override only | Best available models, used sparingly |
 
@@ -121,26 +127,36 @@ The config includes conservative **compaction settings** (`reserved: 24000`). Tr
 | Agent | Model Tier | Role |
 |---|---|---|
 | **python-pro** | MID | Expert Python 3.12+ developer. Types, tests, modern patterns. |
+| **python-reviewer** | SUB | Read-only Python correctness and test review. |
 | **ops-specialist** | SUB | Linux systems, systemd, deployment, logs, infrastructure. |
+| **ops-reviewer** | SUB | Read-only operational and deployment review. |
 | **wiki-curator** | SUB | Maintains the project wiki. Bootstrap, ingest, query, lint. |
 
 ### Project Subagents (installed in `.opencode/agents/`)
 
 | Agent | Model Tier | Role |
 |---|---|---|
-| **review-lead** | SUB | Multi-lens code review coordinator. Routes diffs to domain specialists. |
+| **review-lead** | SUB | Multi-lens code review coordinator. Routes diffs only to read-only reviewers. |
+| **orchestrator** | SUB | Project-local router override and task allow list. |
 | **[project]-dev** | MID | Your project specialist. Created from `_project-dev-template.md`. |
 
 ### Example Specialists (in `examples/specialists/`)
 
-| Agent | Model Tier | Role |
+| Domain | Implementation agent | Read-only reviewer |
 |---|---|---|
-| **frontend-dev** | MID | React/Vue/Svelte, TypeScript, CSS, accessibility. |
-| **backend-dev** | MID | API design, business logic, security. Language-agnostic. |
-| **database-dev** | MID | Schema design, migrations, query optimization, indexing. |
-| **devops-engineer** | MID | Docker, Kubernetes, Terraform, CI/CD, observability. |
+| Frontend | `frontend-dev` | `frontend-reviewer` |
+| Backend | `backend-dev` | `backend-reviewer` |
+| Database | `database-dev` | `database-reviewer` |
+| DevOps | `devops-engineer` | `devops-reviewer` |
 
-Copy the ones matching your stack into `~/.config/opencode/agents/` and add them to the orchestrator's `permission.task` allow list.
+Copy both files for each domain you use. Add implementation agents to the
+project-local orchestrator's `permission.task` allow list and reviewer agents
+to `review-lead`'s allow list. Review workflows never delegate to edit-capable
+implementation agents.
+
+The orchestrator can also use OpenCode's built-in `explore` agent for fast,
+read-only code discovery and `scout` for external documentation or dependency
+source research.
 
 ## Custom Tools and Scripts
 
@@ -197,8 +213,8 @@ See [docs/wiki-system.md](docs/wiki-system.md) for the full guide.
 1. Copy a template from `examples/specialists/` or create a new `.md` file
 2. Set the frontmatter: description, mode (`subagent`), model, and permissions. The filename is the agent name; use `permission` rather than the deprecated boolean `tools` config.
 3. Place in `~/.config/opencode/agents/` (global) or `.opencode/agents/` (project-specific)
-4. Add the agent name to orchestrator.md's `permission.task` section
-5. Optionally add to review-lead.md's task permissions and domain routing table
+4. Add the implementation agent to `.opencode/agents/orchestrator.md`
+5. Create or copy a separate read-only reviewer and add only that reviewer to `review-lead.md`
 
 See [docs/adding-specialists.md](docs/adding-specialists.md) for a detailed walkthrough.
 
@@ -207,7 +223,7 @@ See [docs/adding-specialists.md](docs/adding-specialists.md) for a detailed walk
 1. Copy `project/agents/_project-dev-template.md`
 2. Fill in: project name, layout, conventions, dev commands, key files
 3. Save as `.opencode/agents/<project-name>-dev.md` in your target project
-4. Add to orchestrator and review-lead permissions
+4. Add it to the project-local orchestrator. If it needs review coverage, create a separate read-only reviewer for `review-lead`.
 
 ### Add Rules
 
@@ -229,7 +245,7 @@ Switch to the **orchestrator**. Paste the plan or describe the task. The orchest
 
 ### Review Changes
 
-Invoke the **review-lead** (via `@review-lead` or through the orchestrator). It analyzes the diff, categorizes changed files by domain, and dispatches specialists in parallel. Results are synthesized into one report with severity levels and a verdict.
+Invoke the **review-lead** (via `@review-lead` or through the orchestrator). It analyzes the diff, categorizes changed files by domain, and dispatches read-only reviewers in parallel. Results are synthesized into one report with severity levels and a verdict; implementation agents are never used for review.
 
 ### Maintain the Wiki
 
@@ -241,6 +257,8 @@ On first use: "Bootstrap the wiki for this project." The wiki-curator scans the 
 
 **Subagent can't be invoked** -- Check the calling agent's `permission.task` section. Agent names must match exactly. The orchestrator's task permissions are the most common place to add new specialists.
 
+**Project agent unavailable** -- Add project-only agents to `.opencode/agents/orchestrator.md`, not the global orchestrator. OpenCode merges the project-local definition for that project.
+
 **Model not found** -- Run `opencode models` to verify the model ID exists and is available from your configured providers. Check for typos in the `model` field.
 
 **Wiki not bootstrapping** -- Ensure `.opencode/wiki/` directory exists (even if empty). The wiki-curator checks for this directory to determine if it should bootstrap.
@@ -248,6 +266,8 @@ On first use: "Bootstrap the wiki for this project." The wiki-curator scans the 
 **Tools not appearing** -- Tool `.ts` files must be in `~/.config/opencode/tools/`. Verify with `ls ~/.config/opencode/tools/`. OpenCode auto-discovers tools on startup.
 
 **Scripts not found by tools** -- Global tools execute their trusted implementations from `~/.config/opencode/scripts/`. Ensure that directory was copied during installation and its scripts are readable.
+
+**Template validation fails** -- Run `python3 scripts/validate-template.py` from this repository with the current `opencode` executable on `PATH`. The validator reports unresolved agents, unsafe review permissions, invalid task targets, and model-placeholder drift.
 
 ## References
 

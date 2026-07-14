@@ -97,9 +97,9 @@ cp my-specialist.md /path/to/project/.opencode/agents/
 
 Global agents are better for language-level specialists (frontend-dev, database-dev). Project agents are better for project-specific knowledge (my-app-dev).
 
-### 4. Register with the Orchestrator
+### 4. Register with the Project Orchestrator
 
-Edit `~/.config/opencode/agents/orchestrator.md` (or the project-level copy). Add the new agent to `permission.task`:
+Edit `<target>/.opencode/agents/orchestrator.md`. Add the new agent to `permission.task`. Keep project-only names out of the global orchestrator:
 
 ```yaml
 permission:
@@ -113,23 +113,27 @@ permission:
 
 Without this, the orchestrator cannot invoke the specialist.
 
-### 5. Register with the Review Lead
+### 5. Create and Register a Read-Only Reviewer
 
-If the specialist should participate in code reviews, edit `.opencode/agents/review-lead.md`:
+Never give `review-lead` access to an edit-capable implementation agent. Copy a
+matching `*-reviewer.md` example or create a reviewer with `edit: deny`, a
+deny-first Bash allow list, `task: deny`, and `skill: deny`.
+
+Then edit `.opencode/agents/review-lead.md`:
 
 **Add to task permissions**:
 ```yaml
 permission:
   task:
     "*": deny
-    "python-pro": allow
-    "ops-specialist": allow
-    "my-specialist": allow    # <-- add here
+    "python-reviewer": allow
+    "ops-reviewer": allow
+    "my-reviewer": allow    # <-- add here
 ```
 
 **Add to the domain routing table** in the system prompt:
 ```markdown
-| `src/widgets/**`, `*.widget.ts` | Widgets | my-specialist |
+| `src/widgets/**`, `*.widget.ts` | Widgets | my-reviewer |
 ```
 
 ### 6. Verify
@@ -152,9 +156,9 @@ opencode
 - [ ] `permission.edit` explicitly matches the agent's role
 - [ ] `permission.bash` follows deny-by-default
 - [ ] Placed in `~/.config/opencode/agents/` (global) or `.opencode/agents/` (project)
-- [ ] Added to orchestrator's `permission.task`
-- [ ] Added to review-lead's `permission.task` (if participating in reviews)
-- [ ] Added to review-lead's domain routing table (if participating in reviews)
+- [ ] Added to the project-local orchestrator's `permission.task`
+- [ ] Separate reviewer created with `edit: deny` (if participating in reviews)
+- [ ] Reviewer added to review-lead's task permissions and routing table
 - [ ] Tested: orchestrator can invoke the specialist
 
 ## Tips

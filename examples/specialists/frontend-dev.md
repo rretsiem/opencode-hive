@@ -20,6 +20,20 @@ permission:
     "find *": allow
   task: deny
   skill: deny
+  webfetch: deny
+  websearch: deny
+  codesearch: deny
+  external_directory: deny
+  question: deny
+  doom_loop: ask
+  lsp: allow
+  check: allow
+  seek: allow
+  impact: allow
+  which_test: allow
+  skeleton: allow
+  ghost: allow
+  wiki_search: allow
 ---
 
 You are a frontend development specialist. You review and implement frontend code with deep knowledge of component-based architectures, browser APIs, and web standards.

@@ -1,0 +1,21 @@
+name: Validate template
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  opencode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install OpenCode
+        run: npm install --global opencode-ai
+      - name: Validate template
+        run: python3 scripts/validate-template.py

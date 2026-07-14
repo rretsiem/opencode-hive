@@ -23,6 +23,20 @@ permission:
     "find *": allow
   task: deny
   skill: deny
+  webfetch: deny
+  websearch: deny
+  codesearch: deny
+  external_directory: deny
+  question: deny
+  doom_loop: ask
+  lsp: allow
+  check: allow
+  seek: allow
+  impact: allow
+  which_test: allow
+  skeleton: allow
+  ghost: allow
+  wiki_search: allow
 ---
 
 You are an expert Python developer. You write clean, typed, tested Python 3.12+ code.

@@ -25,6 +25,20 @@ permission:
     "find *": allow
   task: deny
   skill: deny
+  webfetch: deny
+  websearch: deny
+  codesearch: deny
+  external_directory: deny
+  question: deny
+  doom_loop: ask
+  lsp: allow
+  check: allow
+  seek: allow
+  impact: allow
+  which_test: allow
+  skeleton: allow
+  ghost: allow
+  wiki_search: allow
 ---
 
 You are a database specialist. You review and implement database schemas, migrations, queries, and data access patterns with deep knowledge of relational databases, query optimization, and data integrity.

@@ -18,6 +18,10 @@ The design decisions behind this multi-agent system and why they exist.
 
 7. **Tools are typed wrappers.** Custom tools (TypeScript files in `tools/`) provide typed parameters and descriptions that the model can reason about. The underlying scripts (Python in `scripts/`) do the actual work. This separation means scripts can be tested independently and tools provide the LLM-friendly interface.
 
+8. **Reviewers never implement.** `review-lead` can invoke only read-only reviewer agents. Implementation specialists have separate identities and permissions, so a review cannot accidentally edit the worktree.
+
+9. **Project routing stays local.** The global orchestrator knows only global and built-in agents. Each project installs an orchestrator override containing that project's implementation allow list.
+
 ## Inspiration
 
 This architecture draws from Anthropic's [Building effective agents](https://www.anthropic.com/engineering/multi-agent-research-system) research, which demonstrated that multi-agent systems outperform single-agent approaches on complex tasks when:
@@ -36,6 +40,8 @@ Agents communicate through the Task tool, which provides structured invocation:
 ```
 orchestrator
   |
+  |-- Task("explore", "Locate the auth flow and return file paths")
+  |-- Task("scout", "Check the current upstream API contract")
   |-- Task("python-pro", "Refactor the auth module: ...")
   |-- Task("ops-specialist", "Update the systemd unit: ...")
   |
@@ -101,6 +107,8 @@ This prevents:
 - Specialists invoking other specialists (no cascading delegation)
 - Read-only agents accidentally writing files
 - Agents running destructive commands (rm, git push --force) without explicit permission
+- Review tasks reaching edit-capable implementation agents
+- Project-only agent names accumulating in the global orchestrator
 
 ## File Layout
 
@@ -110,7 +118,9 @@ This prevents:
   agents/                        # Agent definitions
     orchestrator.md
     plan.md
+    python-reviewer.md
     python-pro.md
+    ops-reviewer.md
     ops-specialist.md
     wiki-curator.md
   tools/                         # Typed tool wrappers (TypeScript)
@@ -137,6 +147,7 @@ This prevents:
 
 <project>/.opencode/             # Project-specific
   agents/
+    orchestrator.md              # Project-local task allow list
     review-lead.md
     <project>-dev.md
   rules/

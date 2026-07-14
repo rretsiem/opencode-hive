@@ -24,6 +24,20 @@ permission:
     "find *": allow
   task: deny
   skill: deny
+  webfetch: deny
+  websearch: deny
+  codesearch: deny
+  external_directory: deny
+  question: deny
+  doom_loop: ask
+  lsp: allow
+  check: allow
+  seek: allow
+  impact: allow
+  which_test: allow
+  skeleton: allow
+  ghost: allow
+  wiki_search: allow
 ---
 
 You are a Next.js project specialist. You know the App Router, React Server Components, and the full-stack patterns this project uses.
